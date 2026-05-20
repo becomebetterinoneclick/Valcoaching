@@ -205,6 +205,8 @@ select.form-input option{background:var(--bg3)}
 .star-btn{background:none;border:none;font-size:1.8rem;cursor:pointer;color:var(--border2);transition:color .15s;line-height:1}
 .star-btn.active{color:#ffd700}
 .star-btn:hover{color:#ffd700}
+.avis-delete-btn{background:none;border:1px solid rgba(255,70,85,.25);color:rgba(255,70,85,.5);padding:.2rem .55rem;border-radius:3px;cursor:pointer;font-size:.72rem;font-family:'Barlow',sans-serif;transition:all .2s;margin-top:.75rem;display:block;width:fit-content}
+.avis-delete-btn:hover{border-color:var(--red);color:var(--red);background:rgba(255,70,85,.08)}
 </style>
 </head>
 <body>
@@ -935,6 +937,7 @@ async function doLogin(){
       resetCoachTimer();
       await fetchBookings();
       await fetchClients();
+      renderAvisGrid();
       showView('dashboard');
     } else {
       document.getElementById('login-error').style.display='block';
@@ -949,6 +952,7 @@ async function doLogout(){
   isLoggedIn=false;clearTimeout(coachSessionTimer);
   document.getElementById('login-pw').value='';
   await fetch('/api/coach/logout',{method:'POST'});
+  renderAvisGrid();
   showView('home');
 }
 
@@ -1369,13 +1373,31 @@ function renderAvisGrid(){
   }
   el.innerHTML=_avisCache.map(a=>{
     const stars='★'.repeat(a.rating)+'☆'.repeat(5-a.rating);
-    return `<div class="avis-card">
+    const deleteBtn=isLoggedIn
+      ?`<button class="avis-delete-btn" onclick="deleteAvis('${a.id}')">✕ Supprimer</button>`
+      :'';
+    return `<div class="avis-card" id="avis-${a.id}">
       <div class="avis-stars">${stars}</div>
       <div class="avis-text">"${sanitize(a.text)}"</div>
       <div class="avis-author">${sanitize(a.pseudo)}</div>
       <div class="avis-rank">${sanitize(a.rank)}</div>
+      ${deleteBtn}
     </div>`;
   }).join('');
+}
+
+async function deleteAvis(id){
+  if(!confirm('Supprimer cet avis définitivement ?'))return;
+  try{
+    const r=await fetch('/api/reviews/'+id,{method:'DELETE'});
+    const data=await r.json();
+    if(data.success){
+      _avisCache=_avisCache.filter(a=>a.id!==id);
+      renderAvisGrid();
+    } else {
+      alert(data.error||'Erreur lors de la suppression.');
+    }
+  }catch{alert('Erreur serveur.');}
 }
 
 function renderAvisForm(){
