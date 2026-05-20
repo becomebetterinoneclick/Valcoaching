@@ -191,6 +191,20 @@ select.form-input option{background:var(--bg3)}
 .client-agent-tag{font-size:.72rem;padding:.1rem .45rem;border-radius:2px;font-family:'Rajdhani',sans-serif;font-weight:600}
 .client-agent-main{background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.35);color:#ffd700}
 .client-agent-sec{background:rgba(255,70,85,.08);border:1px solid rgba(255,70,85,.25);color:var(--red-light)}
+
+/* AVIS */
+.avis-section{padding:3rem 2rem;max-width:800px;margin:0 auto}
+.avis-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem}
+.avis-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1.25rem}
+.avis-stars{color:#ffd700;font-size:1rem;margin-bottom:.5rem;letter-spacing:2px}
+.avis-text{color:var(--text);font-size:.9rem;line-height:1.6;margin-bottom:.75rem;font-style:italic}
+.avis-author{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.85rem;color:var(--muted)}
+.avis-rank{font-size:.78rem;color:var(--muted);margin-top:.15rem}
+.avis-form-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:1.5rem;margin-top:1rem}
+.star-picker{display:flex;gap:.3rem;margin:.5rem 0}
+.star-btn{background:none;border:none;font-size:1.8rem;cursor:pointer;color:var(--border2);transition:color .15s;line-height:1}
+.star-btn.active{color:#ffd700}
+.star-btn:hover{color:#ffd700}
 </style>
 </head>
 <body>
@@ -260,6 +274,14 @@ select.form-input option{background:var(--bg3)}
     </div>
   </div>
 </div>
+
+<!-- AVIS SECTION -->
+  <div class="avis-section" id="avis-section">
+    <div class="section-title">AVIS DE LA COMMUNAUTÉ</div>
+    <div class="section-sub">Ce que pensent les joueurs coachés</div>
+    <div class="avis-grid" id="avis-grid"><div style="color:var(--muted);font-size:.9rem">Chargement...</div></div>
+    <div id="avis-form-zone"></div>
+  </div>
 
 <!-- BOOKING VIEW -->
 <div id="view-booking" class="view">
@@ -698,6 +720,7 @@ function showView(v){
   if(v==='inscription')document.querySelectorAll('.nav-btn')[2].classList.add('active');
   if(v==='dashboard'||v==='login')document.querySelectorAll('.nav-btn')[3].classList.add('active');
   if(v==='dashboard')renderDashboard();
+  if(v==='home'){fetchAndRenderAvis();}
   if(v==='booking'){resetBooking();renderCalendar();}
   if(v==='inscription'){initAgentsPicker('reg-agents-grid','reg-agents-selected','reg',regSelectedAgents);renderClientsListIfCoach();}
 if(v==='profil'){ fetchBookings().then(()=>showProfil()); }
@@ -1321,8 +1344,111 @@ async function uploadAvatar(input){
   }catch{alert('Erreur upload.');}
 }
 
+
+// ══════════════════════════════════════════════════════════════
+// ── AVIS ─────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+let _avisCache=[];
+let selectedStars=0;
+
+async function fetchAndRenderAvis(){
+  try{
+    const r=await fetch('/api/reviews');
+    if(r.ok)_avisCache=await r.json();
+  }catch{}
+  renderAvisGrid();
+  renderAvisForm();
+}
+
+function renderAvisGrid(){
+  const el=document.getElementById('avis-grid');
+  if(!el)return;
+  if(_avisCache.length===0){
+    el.innerHTML='<div style="color:var(--muted);font-size:.9rem;padding:1rem 0">Aucun avis pour le moment. Sois le premier !</div>';
+    return;
+  }
+  el.innerHTML=_avisCache.map(a=>{
+    const stars='★'.repeat(a.rating)+'☆'.repeat(5-a.rating);
+    return `<div class="avis-card">
+      <div class="avis-stars">${stars}</div>
+      <div class="avis-text">"${sanitize(a.text)}"</div>
+      <div class="avis-author">${sanitize(a.pseudo)}</div>
+      <div class="avis-rank">${sanitize(a.rank)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderAvisForm(){
+  const zone=document.getElementById('avis-form-zone');
+  if(!zone)return;
+  if(!currentClient){zone.innerHTML='';return;}
+  const bookings=getBookings();
+  const hasSession=bookings.some(b=>b.clientId===currentClient.id&&b.status==='confirmed');
+  const alreadyPosted=_avisCache.some(a=>a.clientId===currentClient.id);
+  if(!hasSession){
+    zone.innerHTML=`<div style="background:rgba(255,70,85,.07);border:1px solid rgba(255,70,85,.2);border-radius:4px;padding:.85rem 1.25rem;font-size:.85rem;color:var(--muted)">💬 Tu pourras laisser un avis après ta première session de coaching confirmée.</div>`;
+    return;
+  }
+  if(alreadyPosted){
+    zone.innerHTML=`<div style="background:rgba(0,212,170,.07);border:1px solid rgba(0,212,170,.2);border-radius:4px;padding:.85rem 1.25rem;font-size:.85rem;color:var(--accent)">✅ Tu as déjà laissé un avis. Merci !</div>`;
+    return;
+  }
+  selectedStars=0;
+  zone.innerHTML=`
+    <div class="avis-form-wrap">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:1px;margin-bottom:1rem">LAISSER UN AVIS</div>
+      <div class="form-group" style="margin-bottom:1rem">
+        <label>NOTE</label>
+        <div class="star-picker" id="star-picker">
+          ${[1,2,3,4,5].map(i=>`<button class="star-btn" onclick="setStar(${i})" id="star-${i}">☆</button>`).join('')}
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:1rem">
+        <label>TON AVIS</label>
+        <textarea class="note-input" id="avis-text" placeholder="Partage ton expérience..." style="min-height:80px"></textarea>
+      </div>
+      <button class="btn-book" onclick="submitAvis()" style="width:auto;padding:.6rem 2rem">PUBLIER MON AVIS</button>
+    </div>
+  `;
+}
+
+function setStar(n){
+  selectedStars=n;
+  for(let i=1;i<=5;i++){
+    const btn=document.getElementById('star-'+i);
+    if(btn){btn.textContent=i<=n?'★':'☆';btn.classList.toggle('active',i<=n);}
+  }
+}
+
+async function submitAvis(){
+  if(!currentClient){alert('Tu dois être connecté.');return;}
+  if(selectedStars===0){alert('Choisis une note.');return;}
+  const text=document.getElementById('avis-text').value.trim();
+  if(!text||text.length<10){alert('Écris au moins 10 caractères.');return;}
+  if(text.length>300){alert('Maximum 300 caractères.');return;}
+  const entry={
+    clientId:currentClient.id,
+    pseudo:currentClient.pseudo,
+    rank:currentClient.rank,
+    rating:selectedStars,
+    text:sanitize(text.slice(0,300)),
+    createdAt:new Date().toISOString()
+  };
+  try{
+    const r=await fetch('/api/reviews',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(entry)});
+    const data=await r.json();
+    if(data.success){
+      _avisCache.push(data.review);
+      renderAvisGrid();
+      renderAvisForm();
+    } else {
+      alert(data.error||'Erreur lors de la publication.');
+    }
+  }catch{alert('Erreur serveur.');}
+}
+
 // Init
-initCal();renderRanks();initBookingAgents();updateClientSessionUI();
+initCal();renderRanks();initBookingAgents();updateClientSessionUI();fetchAndRenderAvis();
 </script>
 </body>
 </html>
