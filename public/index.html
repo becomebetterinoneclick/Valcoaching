@@ -201,7 +201,10 @@ select.form-input option{background:var(--bg3)}
     <button class="nav-btn active" onclick="showView('home')">Accueil</button>
     <button class="nav-btn" onclick="showView('booking')">Réserver</button>
     <button class="nav-btn" onclick="showView('inscription')">S'inscrire</button>
-    <button class="nav-btn coach-btn" onclick="showView(isLoggedIn?'dashboard':'login')">⚡ Coach</button>
+   <button class="nav-btn coach-btn" onclick="showView(isLoggedIn?'dashboard':'login')">⚡ Coach</button>
+<div id="client-avatar-nav" style="display:none;cursor:pointer" onclick="showView('profil')">
+  <img id="nav-avatar-img" src="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--accent)">
+</div>
   </div>
 </nav>
 
@@ -458,6 +461,55 @@ select.form-input option{background:var(--bg3)}
   </div>
 </div>
 
+<!-- PROFIL VIEW -->
+<div id="view-profil" class="view">
+  <div class="booking-section">
+    <div style="margin-bottom:1.5rem">
+      <div class="section-title">MON PROFIL</div>
+      <div class="section-sub">Consulte tes infos et personalise ton profil.</div>
+    </div>
+    <div class="booking-card">
+      <div class="booking-header">
+        <div style="width:8px;height:8px;background:var(--accent);border-radius:50%"></div>
+        <h2>INFOS PERSONNELLES</h2>
+      </div>
+      <div class="booking-body" style="grid-template-columns:1fr">
+        <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+          <div style="position:relative">
+            <img id="profil-avatar" src="" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);background:var(--bg3)">
+            <label for="avatar-upload" style="position:absolute;bottom:0;right:0;background:var(--red);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.8rem">✏️</label>
+            <input type="file" id="avatar-upload" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
+          </div>
+          <div>
+            <div id="profil-pseudo" style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700"></div>
+            <div id="profil-rank" style="color:var(--muted);font-size:.9rem;margin-top:.2rem"></div>
+            <div id="profil-discord" style="color:var(--muted);font-size:.85rem;margin-top:.2rem"></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.8rem;color:var(--muted);letter-spacing:1px;font-family:'Rajdhani',sans-serif;font-weight:600;margin-bottom:.5rem">MES AGENTS</div>
+          <div id="profil-agents"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="booking-card" style="margin-top:1.5rem">
+      <div class="booking-header">
+        <div style="width:8px;height:8px;background:var(--red);border-radius:50%"></div>
+        <h2>MES RÉSERVATIONS</h2>
+      </div>
+      <div id="profil-rdvs" style="padding:1rem 1.5rem"></div>
+    </div>
+
+    <div class="booking-card" style="margin-top:1.5rem">
+      <div class="booking-header">
+        <div style="width:8px;height:8px;background:#f5a623;border-radius:50%"></div>
+        <h2>RETOURS DU COACH</h2>
+      </div>
+      <div id="profil-retours" style="padding:1rem 1.5rem"></div>
+    </div>
+  </div>
+</div>
 <!-- LOGIN VIEW -->
 <div id="view-login" class="view">
   <div class="login-wrap">
@@ -648,6 +700,7 @@ function showView(v){
   if(v==='dashboard')renderDashboard();
   if(v==='booking'){resetBooking();renderCalendar();}
   if(v==='inscription'){initAgentsPicker('reg-agents-grid','reg-agents-selected','reg',regSelectedAgents);renderClientsListIfCoach();}
+if(v==='profil'){ fetchBookings().then(()=>showProfil()); }
 }
 
 function showInscriptionWithMsg(){
@@ -907,21 +960,27 @@ async function doClientLogin(){
   }
 }
 
-function doClientLogout(){
-  currentClient=null;updateClientSessionUI();
-  const msg=document.getElementById('booking-blocked-msg');if(msg)msg.remove();
-}
-
 function updateClientSessionUI(){
   const loginBox=document.getElementById('client-login-box');
   const sessionBox=document.getElementById('client-session-box');
+  const avatarNav=document.getElementById('client-avatar-nav');
   if(currentClient){
-    loginBox.style.display='none';sessionBox.style.display='block';
+    loginBox.style.display='none';
+    sessionBox.style.display='block';
     document.getElementById('client-session-name').textContent=sanitize(currentClient.pseudo)+' — '+sanitize(currentClient.rank);
+    avatarNav.style.display='flex';
+    document.getElementById('nav-avatar-img').src=currentClient.avatar||'https://api.dicebear.com/7.x/initials/svg?seed='+encodeURIComponent(currentClient.pseudo);
     const msg=document.getElementById('booking-blocked-msg');if(msg)msg.remove();
   } else {
-    loginBox.style.display='block';sessionBox.style.display='none';
+    loginBox.style.display='block';
+    sessionBox.style.display='none';
+    avatarNav.style.display='none';
   }
+}
+
+function doClientLogout(){
+  currentClient=null;updateClientSessionUI();
+  const msg=document.getElementById('booking-blocked-msg');if(msg)msg.remove();
 }
 
 function showLoginForm(){
@@ -929,6 +988,7 @@ function showLoginForm(){
   document.getElementById('client-login-box').scrollIntoView({behavior:'smooth'});
   setTimeout(()=>document.getElementById('login-client-pseudo').focus(),300);
 }
+
 
 // ══════════════════════════════════════════════════════════════
 // ── INSCRIPTION (SÉCURISÉE) ───────────────────────────────────
@@ -1204,6 +1264,61 @@ function initBookingAgents(){
   bookingSelectedAgents=[];
   document.getElementById('agent-search').value='';
   renderAgentsGrid('agents-grid','agents-selected',bookingSelectedAgents,'');
+}
+
+// ── PROFIL ────────────────────────────────────────────────────
+function showProfil(){
+  if(!currentClient)return;
+  const c=currentClient;
+  const avatar=c.avatar||'';
+  document.getElementById('profil-avatar').src=avatar||'https://api.dicebear.com/7.x/initials/svg?seed='+encodeURIComponent(c.pseudo);
+  document.getElementById('nav-avatar-img').src=avatar||'https://api.dicebear.com/7.x/initials/svg?seed='+encodeURIComponent(c.pseudo);
+  document.getElementById('profil-pseudo').textContent=c.pseudo;
+  document.getElementById('profil-rank').textContent='🏆 '+c.rank;
+  document.getElementById('profil-discord').textContent='💬 '+c.discord;
+  const agentsEl=document.getElementById('profil-agents');
+  agentsEl.innerHTML=c.agents&&c.agents.length>0
+    ?c.agents.map((a,i)=>`<span class="client-agent-tag ${i===0?'client-agent-main':'client-agent-sec'}">${i===0?'★ ':''} ${sanitize(a)}</span>`).join('')
+    :'<span style="color:var(--muted);font-size:.85rem">Aucun agent</span>';
+  // RDVs du client
+  const rdvs=getBookings().filter(b=>b.clientId===c.id);
+  const rdvsEl=document.getElementById('profil-rdvs');
+  if(rdvs.length===0){rdvsEl.innerHTML='<div class="empty-state">Aucune réservation.</div>';}
+  else{
+    rdvsEl.innerHTML=rdvs.sort((a,b)=>b.date.localeCompare(a.date)).map(b=>{
+      const badge=b.status==='confirmed'?'<span class="rdv-badge badge-confirmed">CONFIRMÉ</span>':b.status==='cancelled'?'<span class="rdv-badge badge-cancelled">ANNULÉ</span>':'<span class="rdv-badge badge-pending">EN ATTENTE</span>';
+      return `<div class="rdv-card ${sanitize(b.status)}" style="margin-bottom:.5rem">
+        <div class="rdv-info"><h3>📅 ${b.date} à ${b.time}</h3><p>Durée : ${b.duration} min · Rang : ${sanitize(b.rank)}</p></div>
+        <div>${badge}</div>
+      </div>`;
+    }).join('');
+  }
+  // Retours coach
+  const retoursEl=document.getElementById('profil-retours');
+  const retours=rdvs.filter(b=>b.retour);
+  if(retours.length===0){retoursEl.innerHTML='<div class="empty-state">Pas encore de retour du coach.</div>';}
+  else{
+    retoursEl.innerHTML=retours.map(b=>`
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:1rem;margin-bottom:.6rem">
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:.4rem">📅 Session du ${b.date}</div>
+        <p style="font-size:.9rem;line-height:1.6">${sanitize(b.retour)}</p>
+      </div>`).join('');
+  }
+}
+
+async function uploadAvatar(input){
+  if(!input.files||!input.files[0])return;
+  const formData=new FormData();
+  formData.append('avatar',input.files[0]);
+  try{
+    const r=await fetch('/api/clients/'+currentClient.id+'/avatar',{method:'POST',body:formData});
+    const data=await r.json();
+    if(data.success){
+      currentClient.avatar=data.avatar;
+      document.getElementById('profil-avatar').src=data.avatar;
+      document.getElementById('nav-avatar-img').src=data.avatar;
+    }
+  }catch{alert('Erreur upload.');}
 }
 
 // Init
