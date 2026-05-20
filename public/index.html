@@ -499,10 +499,24 @@ select.form-input option{background:var(--bg3)}
 </div>
 
 <script>
-const COACH_PW = "valorant2024";
-const MAX_MINS_PER_DAY = 150;
-const COACH_START = 10;
 const COACH_END = 22;
+const MAX_MINS_PER_DAY = 9999;
+const COACH_START = 10;
+
+let _bookingsCache = [];
+let _clientsCache = [];
+
+async function fetchBookings(){
+  try{const r=await fetch('/api/bookings');if(!r.ok)return[];_bookingsCache=await r.json();return _bookingsCache;}catch{return _bookingsCache;}
+}
+function getBookings(){return _bookingsCache;}
+
+async function fetchClients(){
+  try{const r=await fetch('/api/clients');if(!r.ok)return[];_clientsCache=await r.json();return _clientsCache;}catch{return _clientsCache;}
+}
+function getClients(){return _clientsCache;}
+
+
 
 // ══════════════════════════════════════════════════════════════
 // ── SÉCURITÉ — CONSTANTES ─────────────────────────────────────
@@ -561,51 +575,7 @@ function rateLimitCheck(key, maxAttempts, windowMs){
   return{ok:true};
 }
 
-// ── STORAGE SÉCURISÉ ──────────────────────────────────────────
-function getBookings(){
-  try{
-    const r=localStorage.getItem('valoBookings');
-    if(!r)return[];
-    const arr=JSON.parse(r);
-    if(!Array.isArray(arr))return[];
-    // Vérifier l'intégrité de chaque entrée
-    return arr.filter(b=>{
-      if(!verifyEntry(b))return false;
-      if(!b.id||typeof b.id!=='string')return false;
-      if(!SEC.VALID_STATUSES.includes(b.status))return false;
-      if(!SEC.VALID_RANKS.includes(b.rank))return false;
-      if(!SEC.VALID_DURATIONS.includes(b.duration))return false;
-      return true;
-    });
-  }catch{return[];}
-}
-function saveBookings(arr){
-  const signed=arr.map(b=>signEntry(b));
-  localStorage.setItem('valoBookings',JSON.stringify(signed));
-}
 
-function getClients(){
-  try{
-    const r=localStorage.getItem('valoClients');
-    if(!r)return[];
-    const arr=JSON.parse(r);
-    if(!Array.isArray(arr))return[];
-    return arr.filter(c=>{
-      if(!verifyEntry(c))return false;
-      if(!c.id||!c.pseudo||!c.pw)return false;
-      if(!SEC.VALID_RANKS.includes(c.rank))return false;
-      if(c.agents&&!Array.isArray(c.agents))return false;
-      if(c.agents&&c.agents.some(a=>!SEC.VALID_AGENTS.includes(a)))return false;
-      return true;
-    });
-  }catch{return[];}
-}
-function saveClients(arr){
-  // Ne jamais sauvegarder le mot de passe en clair — on le garde tel quel ici
-  // (limitation du contexte client-side ; dans un vrai projet : hachage côté serveur)
-  const signed=arr.map(c=>signEntry(c));
-  localStorage.setItem('valoClients',JSON.stringify(signed));
-}
 
 // ── VALIDATION CHAMPS ──────────────────────────────────────────
 function validatePseudo(p){
@@ -786,7 +756,7 @@ function renderSlots(){
 // ══════════════════════════════════════════════════════════════
 // ── RÉSERVATION (SÉCURISÉE) ───────────────────────────────────
 // ══════════════════════════════════════════════════════════════
-function submitBooking(){
+async function submitBooking(){
   // Double-check session
   if(!currentClient){alert('Tu dois être connecté pour réserver.');showView('inscription');return;}
 
@@ -821,6 +791,7 @@ function submitBooking(){
   if(!selectedDate||!selectedSlot){alert('Choisis une date et un créneau.');return;}
 
   // Anti-spam : max RDV actifs par client
+  await fetchBookings();
   const bookings=getBookings();
   const clientActiveRdvs=bookings.filter(b=>b.clientId===currentClient.id&&b.status!=='cancelled');
   if(clientActiveRdvs.length>=SEC.MAX_RDV_ACTIVE){
@@ -837,7 +808,12 @@ function submitBooking(){
   const entry={id,clientId:currentClient.id,pseudo:sanitize(pseudo),rank,discord:sanitize(discord),
     agents:[...bookingSelectedAgents],date:selectedDate,time:selectedSlot,duration:dur,
     note,status:'pending',createdAt:new Date().toISOString()};
-  bookings.push(entry);saveBookings(bookings);
+  try{
+    const r=await fetch('/api/bookings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(entry)});
+    const data=await r.json();
+    if(!data.success){alert('Erreur lors de la réservation.');return;}
+    _bookingsCache.push(data.booking);
+  }catch{alert('Erreur serveur.');return;}
 
   document.getElementById('booking-form-wrap').style.display='none';
   const d=document.getElementById('success-detail');
@@ -868,32 +844,42 @@ document.getElementById('f-duration').addEventListener('change',()=>{if(selected
 // ══════════════════════════════════════════════════════════════
 // ── CONNEXION COACH (SÉCURISÉE) ───────────────────────────────
 // ══════════════════════════════════════════════════════════════
-function doLogin(){
+async function doLogin(){
   const rl=rateLimitCheck('coach_login',SEC.COACH_MAX_ATTEMPTS,SEC.COACH_LOCKOUT_MS);
   if(!rl.ok){document.getElementById('login-error').style.display='block';document.getElementById('login-error').textContent=rl.reason;return;}
   const pw=document.getElementById('login-pw').value;
-  if(pw===COACH_PW){
-    isLoggedIn=true;
-    _rateBuckets['coach_login']={count:0,first:Date.now(),locked:false,lockUntil:0};
-    document.getElementById('login-error').style.display='none';
-    document.getElementById('login-pw').value='';
-    resetCoachTimer();
-    showView('dashboard');
-  } else {
+  try{
+    const r=await fetch('/api/coach/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+    const data=await r.json();
+    if(data.success){
+      isLoggedIn=true;
+      _rateBuckets['coach_login']={count:0,first:Date.now(),locked:false,lockUntil:0};
+      document.getElementById('login-error').style.display='none';
+      document.getElementById('login-pw').value='';
+      resetCoachTimer();
+      await fetchBookings();
+      await fetchClients();
+      showView('dashboard');
+    } else {
+      document.getElementById('login-error').style.display='block';
+      document.getElementById('login-error').textContent='Mot de passe incorrect.';
+    }
+  }catch{
     document.getElementById('login-error').style.display='block';
-    document.getElementById('login-error').textContent='Mot de passe incorrect.';
+    document.getElementById('login-error').textContent='Erreur serveur. Réessaie.';
   }
 }
-function doLogout(){
+async function doLogout(){
   isLoggedIn=false;clearTimeout(coachSessionTimer);
   document.getElementById('login-pw').value='';
+  await fetch('/api/coach/logout',{method:'POST'});
   showView('home');
 }
 
 // ══════════════════════════════════════════════════════════════
 // ── CONNEXION CLIENT (SÉCURISÉE) ──────────────────────────────
 // ══════════════════════════════════════════════════════════════
-function doClientLogin(){
+async function doClientLogin(){
   const pseudo=document.getElementById('login-client-pseudo').value.trim();
   const pw=document.getElementById('login-client-pw').value;
   const rlKey='client_login_'+pseudo.toLowerCase();
@@ -903,17 +889,22 @@ function doClientLogin(){
     document.getElementById('login-client-error').textContent=rl.reason;
     return;
   }
-  const clients=getClients();
-  const found=clients.find(c=>c.pseudo.toLowerCase()===pseudo.toLowerCase()&&c.pw===pw);
-  if(!found){
+  try{
+    const r=await fetch('/api/clients/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pseudo,pw})});
+    const data=await r.json();
+    if(data.success){
+      document.getElementById('login-client-error').style.display='none';
+      _rateBuckets[rlKey]={count:0,first:Date.now(),locked:false,lockUntil:0};
+      currentClient=data.client;
+      updateClientSessionUI();
+    } else {
+      document.getElementById('login-client-error').style.display='inline';
+      document.getElementById('login-client-error').textContent='Pseudo ou mot de passe incorrect.';
+    }
+  }catch{
     document.getElementById('login-client-error').style.display='inline';
-    document.getElementById('login-client-error').textContent='Pseudo ou mot de passe incorrect.';
-    return;
+    document.getElementById('login-client-error').textContent='Erreur serveur.';
   }
-  document.getElementById('login-client-error').style.display='none';
-  _rateBuckets[rlKey]={count:0,first:Date.now(),locked:false,lockUntil:0};
-  currentClient=found;
-  updateClientSessionUI();
 }
 
 function doClientLogout(){
@@ -942,7 +933,7 @@ function showLoginForm(){
 // ══════════════════════════════════════════════════════════════
 // ── INSCRIPTION (SÉCURISÉE) ───────────────────────────────────
 // ══════════════════════════════════════════════════════════════
-function submitInscription(){
+async function submitInscription(){
   const pseudo=document.getElementById('reg-pseudo').value.trim();
   const discord=document.getElementById('reg-discord').value.trim();
   const rank=document.getElementById('reg-rank').value;
@@ -967,16 +958,16 @@ function submitInscription(){
   const rl=rateLimitCheck('reg_'+pseudo.toLowerCase(),3,10*60*1000);
   if(!rl.ok){alert(rl.reason);return;}
 
-  const clients=getClients();
-  if(clients.find(c=>c.pseudo.toLowerCase()===pseudo.toLowerCase())){
-    showFieldError('reg-pseudo','Ce pseudo est déjà inscrit.');return;
-  }
+  // Le serveur vérifiera si le pseudo existe déjà
 
-  const entry={id:'client_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
-    pseudo:sanitize(pseudo),discord:sanitize(discord),rank,pw,
+  const entry={pseudo:sanitize(pseudo),discord:sanitize(discord),rank,pw,
     agents:[...regSelectedAgents],createdAt:new Date().toISOString()};
-  clients.push(entry);saveClients(clients);
-  currentClient=entry;updateClientSessionUI();
+  try{
+    const r=await fetch('/api/clients',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(entry)});
+    const data=await r.json();
+    if(!data.success){showFieldError('reg-pseudo',data.error||'Erreur inscription.');return;}
+    currentClient=data.client;updateClientSessionUI();
+  }catch{alert('Erreur serveur.');return;}
 
   const area=document.getElementById('reg-msg-area');
   area.innerHTML=`<div style="background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.25);border-radius:4px;padding:1rem;text-align:center">
@@ -1002,7 +993,7 @@ function switchTab(t,el){
   el.classList.add('active');
   ['rdvs','past','clients','settings'].forEach(id=>{document.getElementById('tab-'+id).style.display='none';});
   document.getElementById('tab-'+t).style.display='block';
-  if(t==='clients'){renderClientsTab();}else{renderDashboard();}
+  if(t==='clients'){fetchClients().then(renderClientsTab);}else{renderDashboard();}
 }
 
 function renderClientsTab(){
@@ -1030,9 +1021,10 @@ function renderClientsTab(){
   }).join('');
 }
 
-function renderDashboard(){
+async function renderDashboard(){
   if(!isLoggedIn)return;
   resetCoachTimer();
+  await fetchBookings();
   const all=getBookings();
   const now=new Date();now.setHours(0,0,0,0);
   const upcoming=all.filter(b=>b.status!=='cancelled'&&new Date(b.date+'T12:00:00')>=now);
@@ -1043,7 +1035,7 @@ function renderDashboard(){
     <div class="stat-card"><div class="stat-val">${all.filter(b=>b.status==='confirmed').length}</div><div class="stat-label">CONFIRMÉS</div></div>
     <div class="stat-card"><div class="stat-val">${all.filter(b=>b.status==='pending').length}</div><div class="stat-label">EN ATTENTE</div></div>
     <div class="stat-card"><div class="stat-val">${past.filter(b=>b.status!=='cancelled').length}</div><div class="stat-label">TERMINÉS</div></div>
-    <div class="stat-card" style="cursor:pointer" onclick="document.querySelector('.tab[onclick*=clients]').click()"><div class="stat-val" style="color:var(--accent)">${getClients().length}</div><div class="stat-label">CLIENTS INSCRITS</div></div>`;
+    <div class="stat-card" style="cursor:pointer" onclick="document.querySelector('.tab[onclick*=clients]').click()"><div class="stat-val" style="color:var(--accent)">${_clientsCache.length}</div><div class="stat-label">CLIENTS INSCRITS</div></div>`;
   renderRdvList(dashTab==='rdvs'?upcoming:past, dashTab==='rdvs'?'tab-rdvs':'tab-past');
   renderSettings();
 }
@@ -1077,13 +1069,15 @@ function renderRdvList(list,containerId){
   el.innerHTML=html;
 }
 
-function setStatus(id,status){
-  if(!isLoggedIn)return; // Seul le coach peut changer un statut
+async function setStatus(id,status){
+  if(!isLoggedIn)return;
   if(!SEC.VALID_STATUSES.includes(status))return;
-  if(!/^rdv_\d+/.test(id))return; // Vérification format ID
-  const b=getBookings();
-  const idx=b.findIndex(x=>x.id===id);
-  if(idx>-1){b[idx].status=status;saveBookings(b);}
+  try{
+    await fetch('/api/bookings/'+id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status})});
+    const b=_bookingsCache;
+    const idx=b.findIndex(x=>x.id===id);
+    if(idx>-1)b[idx].status=status;
+  }catch{}
   renderDashboard();
 }
 
@@ -1116,23 +1110,32 @@ function renderSettings(){
     </div>`;
 }
 
-function clearCancelled(){
+async function clearCancelled(){
   if(!isLoggedIn)return;
-  const b=getBookings().filter(x=>x.status!=='cancelled');saveBookings(b);renderDashboard();
+  const cancelled=_bookingsCache.filter(x=>x.status==='cancelled');
+  for(const b of cancelled){
+    try{await fetch('/api/bookings/'+b.id,{method:'DELETE'});}catch{}
+  }
+  _bookingsCache=_bookingsCache.filter(x=>x.status!=='cancelled');
+  renderDashboard();
 }
 
 // ── CLIENTS DB ────────────────────────────────────────────────
-function deleteClient(id){
+async function deleteClient(id){
   if(!isLoggedIn)return;
   if(!confirm('Supprimer ce client ?'))return;
-  const clients=getClients().filter(c=>c.id!==id);
-  saveClients(clients);renderClientsTab();
+  try{
+    await fetch('/api/clients/'+id,{method:'DELETE'});
+    _clientsCache=_clientsCache.filter(c=>c.id!==id);
+  }catch{}
+  renderClientsTab();
 }
 
-function renderClientsListIfCoach(){
+async function renderClientsListIfCoach(){
   const section=document.getElementById('clients-list-section');
   if(!isLoggedIn){section.style.display='none';return;}
   section.style.display='block';
+  await fetchClients();
   renderClientsTab();
 }
 

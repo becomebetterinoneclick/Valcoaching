@@ -1,0 +1,37 @@
+{
+  "bookings": [
+    {
+      "id": "1779309582724",
+      "clientId": "1779309493194",
+      "pseudo": "Zephy#EZNT",
+      "rank": "Diamant 3",
+      "discord": "wyn_ee",
+      "agents": [
+        "Astra",
+        "Breach",
+        "Chamber"
+      ],
+      "date": "2026-05-27",
+      "time": "11:30",
+      "duration": 120,
+      "note": "l&#x27;aim le gamesens",
+      "status": "pending",
+      "createdAt": "2026-05-20T20:39:42.722Z"
+    }
+  ],
+  "clients": [
+    {
+      "pseudo": "Zephy#EZNT",
+      "discord": "wyn_ee",
+      "rank": "Diamant 3",
+      "pw": "Eva123456789@",
+      "agents": [
+        "Astra",
+        "Breach",
+        "Chamber"
+      ],
+      "createdAt": "2026-05-20T20:38:13.192Z",
+      "id": "1779309493194"
+    }
+  ]
+}
