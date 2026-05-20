@@ -1,0 +1,1210 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valorant Coaching</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--red:#ff4655;--red-dark:#c4303d;--red-light:#ff6b78;
+--bg:#0a0a0f;--bg2:#111118;--bg3:#1a1a24;--bg4:#22222e;
+--border:#2a2a38;--border2:#3a3a4e;
+--text:#e0e0f0;--muted:#7a7a9a;--accent:#00d4aa;
+}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+h1,h2,h3,.rank-font{font-family:'Rajdhani',sans-serif}
+
+/* NAV */
+nav{background:rgba(10,10,15,0.95);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.logo{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.3rem;color:var(--red);letter-spacing:2px}
+.logo span{color:var(--text)}
+.nav-links{display:flex;gap:1rem}
+.nav-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.4rem 1rem;border-radius:3px;cursor:pointer;font-family:'Barlow',sans-serif;font-size:.85rem;transition:all .2s}
+.nav-btn:hover,.nav-btn.active{border-color:var(--red);color:var(--red)}
+.nav-btn.coach-btn{border-color:var(--border2);color:var(--muted)}
+.nav-btn.coach-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* VIEWS */
+.view{display:none}.view.active{display:block}
+
+/* HERO */
+.hero{padding:5rem 2rem 3rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse at top,rgba(255,70,85,.12) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-block;background:rgba(255,70,85,.1);border:1px solid rgba(255,70,85,.3);color:var(--red);font-family:'Rajdhani',sans-serif;font-size:.8rem;letter-spacing:3px;padding:.3rem 1rem;border-radius:2px;margin-bottom:1.5rem}
+.hero h1{font-size:3.5rem;font-weight:700;letter-spacing:3px;line-height:1.1;margin-bottom:1rem}
+.hero h1 em{color:var(--red);font-style:normal}
+.hero p{color:var(--muted);font-size:1.1rem;max-width:500px;margin:0 auto 2.5rem;font-weight:300;line-height:1.7}
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:var(--red);color:#fff;border:none;padding:.75rem 2rem;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:1rem;letter-spacing:2px;border-radius:3px;cursor:pointer;transition:all .2s}
+.btn-primary:hover{background:var(--red-dark);transform:translateY(-1px)}
+.btn-outline{background:none;color:var(--text);border:1px solid var(--border2);padding:.75rem 2rem;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:1rem;letter-spacing:2px;border-radius:3px;cursor:pointer;transition:all .2s}
+.btn-outline:hover{border-color:var(--text)}
+
+/* RANKS SECTION */
+.ranks-section{padding:3rem 2rem;max-width:800px;margin:0 auto}
+.section-title{font-size:1.5rem;font-weight:700;letter-spacing:2px;margin-bottom:.5rem}
+.section-sub{color:var(--muted);margin-bottom:2rem;font-size:.9rem}
+.ranks-grid{display:flex;gap:.6rem;flex-wrap:wrap}
+.rank-pill{background:var(--bg3);border:1px solid var(--border);padding:.4rem .9rem;border-radius:2px;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:1px;font-size:.85rem;color:var(--muted)}
+.rank-pill.from{border-color:rgba(180,140,60,.4);color:#c8a84b;background:rgba(180,140,60,.08)}
+.rank-pill.to{border-color:rgba(125,175,255,.4);color:#7db3ff;background:rgba(125,175,255,.08)}
+.rank-arrow{color:var(--red);font-size:1.2rem;display:flex;align-items:center}
+
+/* WHAT SECTION */
+.what-section{padding:2rem 2rem 3rem;max-width:800px;margin:0 auto}
+.what-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.what-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1.25rem}
+.what-card-icon{font-size:1.5rem;margin-bottom:.7rem}
+.what-card h3{font-size:1rem;font-weight:600;margin-bottom:.4rem;color:var(--text)}
+.what-card p{font-size:.85rem;color:var(--muted);line-height:1.6}
+
+/* FREE BADGE */
+.free-banner{background:rgba(0,212,170,.07);border:1px solid rgba(0,212,170,.2);border-radius:4px;padding:1rem 1.5rem;max-width:800px;margin:0 auto 2rem;display:flex;align-items:center;gap:1rem}
+.free-banner .badge{background:var(--accent);color:#000;font-family:'Rajdhani',sans-serif;font-weight:700;padding:.2rem .7rem;border-radius:2px;letter-spacing:1px;white-space:nowrap}
+.free-banner p{color:var(--muted);font-size:.9rem}
+
+/* BOOKING */
+.booking-section{padding:2rem;max-width:800px;margin:0 auto}
+.booking-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.booking-header{background:var(--bg3);border-bottom:1px solid var(--border);padding:1.25rem 1.5rem;display:flex;align-items:center;gap:.75rem}
+.booking-header h2{font-size:1.3rem;letter-spacing:2px}
+.booking-body{padding:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+@media(max-width:600px){.booking-body{grid-template-columns:1fr}}
+.form-group{display:flex;flex-direction:column;gap:.4rem}
+.form-group label{font-size:.8rem;color:var(--muted);letter-spacing:1px;font-family:'Rajdhani',sans-serif;font-weight:600}
+.form-input{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:.6rem .8rem;border-radius:3px;font-family:'Barlow',sans-serif;font-size:.9rem;outline:none;transition:border .2s}
+.form-input:focus{border-color:var(--red)}
+select.form-input option{background:var(--bg3)}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:.75rem}
+.cal-header{text-align:center;font-size:.7rem;color:var(--muted);font-family:'Rajdhani',sans-serif;font-weight:600;padding:.3rem 0}
+.cal-day{text-align:center;padding:.4rem .2rem;font-size:.8rem;cursor:pointer;border-radius:3px;border:1px solid transparent;transition:all .15s;position:relative}
+.cal-day:hover:not(.empty):not(.past){border-color:var(--border2);background:var(--bg3)}
+.cal-day.selected{background:var(--red);color:#fff;border-color:var(--red)}
+.cal-day.today{border-color:var(--border2)}
+.cal-day.past{color:var(--border2);cursor:default}
+.cal-day.empty{cursor:default}
+.cal-day.full{color:var(--muted);cursor:not-allowed}
+.cal-day.full::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--red)}
+.cal-day.partial::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent)}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.cal-nav-btn{background:none;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;border-radius:3px;cursor:pointer;font-size:.9rem;transition:all .15s}
+.cal-nav-btn:hover{border-color:var(--border2);color:var(--text)}
+.cal-month{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.95rem;letter-spacing:1px}
+
+.slots-section{grid-column:1/-1}
+.slots-label{font-size:.8rem;color:var(--muted);letter-spacing:1px;font-family:'Rajdhani',sans-serif;font-weight:600;margin-bottom:.6rem}
+.slots-grid{display:flex;flex-wrap:wrap;gap:.5rem}
+.slot-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:.35rem .75rem;border-radius:3px;cursor:pointer;font-size:.8rem;transition:all .15s;font-family:'Barlow',sans-serif}
+.slot-btn:hover{border-color:var(--border2)}
+.slot-btn.selected{background:rgba(255,70,85,.15);border-color:var(--red);color:var(--red)}
+.slot-btn.unavail{background:var(--bg);border-color:var(--border);color:var(--border2);cursor:not-allowed}
+.avail-legend{display:flex;gap:1rem;margin-bottom:.6rem;font-size:.75rem;color:var(--muted)}
+.legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
+
+.booking-footer{padding:1.25rem 1.5rem;border-top:1px solid var(--border);background:var(--bg3)}
+.btn-book{background:var(--red);color:#fff;border:none;padding:.7rem 2rem;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;letter-spacing:2px;border-radius:3px;cursor:pointer;width:100%;transition:all .2s}
+.btn-book:hover{background:var(--red-dark)}
+.btn-book:disabled{background:var(--border);cursor:not-allowed;color:var(--muted)}
+
+/* SUCCESS */
+.success-card{background:var(--bg2);border:1px solid rgba(0,212,170,.3);border-radius:6px;padding:2.5rem;text-align:center;max-width:500px;margin:3rem auto}
+.success-icon{font-size:3rem;margin-bottom:1rem}
+.success-card h2{font-size:1.8rem;letter-spacing:2px;margin-bottom:.75rem;color:var(--accent)}
+.success-card p{color:var(--muted);line-height:1.7;font-size:.95rem}
+.success-detail{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:1rem;margin:1.25rem 0;text-align:left}
+.success-detail p{font-size:.85rem;color:var(--muted);margin-bottom:.3rem}
+.success-detail p strong{color:var(--text)}
+
+/* LOGIN */
+.login-wrap{max-width:360px;margin:5rem auto;padding:2rem}
+.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:2rem}
+.login-card h2{font-size:1.5rem;letter-spacing:2px;margin-bottom:.3rem;color:var(--accent)}
+.login-card p{color:var(--muted);font-size:.85rem;margin-bottom:1.5rem}
+.login-error{background:rgba(255,70,85,.1);border:1px solid rgba(255,70,85,.3);color:var(--red);padding:.6rem 1rem;border-radius:3px;font-size:.85rem;margin-bottom:1rem}
+.btn-login{background:var(--accent);color:#000;border:none;padding:.7rem;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;letter-spacing:2px;border-radius:3px;cursor:pointer;width:100%;margin-top:.5rem;transition:background .2s}
+.btn-login:hover{background:#00b890}
+
+/* DASHBOARD */
+.dash-wrap{padding:1.5rem 2rem;max-width:900px;margin:0 auto}
+.dash-title{font-size:1.8rem;letter-spacing:3px;margin-bottom:.3rem}
+.dash-sub{color:var(--muted);font-size:.85rem;margin-bottom:2rem}
+.dash-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:2rem}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1.1rem 1.25rem}
+.stat-val{font-family:'Rajdhani',sans-serif;font-size:2rem;font-weight:700;color:var(--text)}
+.stat-label{font-size:.78rem;color:var(--muted);letter-spacing:1px;margin-top:.2rem}
+.rdv-list-title{font-size:1.1rem;letter-spacing:2px;margin-bottom:.75rem;color:var(--muted)}
+.rdv-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1rem 1.25rem;margin-bottom:.6rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.rdv-card.confirmed{border-left:3px solid var(--accent)}
+.rdv-card.pending{border-left:3px solid #f5a623}
+.rdv-card.cancelled{border-left:3px solid var(--border2);opacity:.5}
+.rdv-info h3{font-size:.95rem;font-weight:600;margin-bottom:.2rem}
+.rdv-info p{font-size:.8rem;color:var(--muted)}
+.rdv-actions{display:flex;gap:.5rem}
+.rdv-badge{font-size:.7rem;padding:.2rem .6rem;border-radius:2px;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:1px}
+.badge-confirmed{background:rgba(0,212,170,.1);color:var(--accent);border:1px solid rgba(0,212,170,.2)}
+.badge-pending{background:rgba(245,166,35,.1);color:#f5a623;border:1px solid rgba(245,166,35,.2)}
+.badge-cancelled{background:rgba(100,100,130,.1);color:var(--muted);border:1px solid var(--border)}
+.action-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.3rem .7rem;border-radius:3px;cursor:pointer;font-size:.75rem;font-family:'Barlow',sans-serif;transition:all .15s}
+.action-btn:hover{border-color:var(--border2);color:var(--text)}
+.action-btn.confirm:hover{border-color:var(--accent);color:var(--accent)}
+.action-btn.cancel:hover{border-color:var(--red);color:var(--red)}
+.tab-bar{display:flex;gap:.5rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:0}
+.tab{background:none;border:none;color:var(--muted);padding:.6rem 1rem;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.95rem;letter-spacing:1px;border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--red);border-bottom-color:var(--red)}
+.empty-state{text-align:center;padding:3rem;color:var(--muted);font-size:.9rem}
+.coach-avail{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1.25rem;margin-bottom:1.5rem}
+.coach-avail h3{font-family:'Rajdhani',sans-serif;font-size:1rem;letter-spacing:1px;margin-bottom:.75rem;color:var(--muted)}
+.time-range{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.time-range label{font-size:.8rem;color:var(--muted)}
+.logout-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:.35rem .8rem;border-radius:3px;cursor:pointer;font-size:.8rem;font-family:'Barlow',sans-serif;transition:all .15s}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+.note-input{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:.6rem .8rem;border-radius:3px;font-family:'Barlow',sans-serif;font-size:.85rem;outline:none;width:100%;resize:vertical;transition:border .2s;min-height:60px}
+.note-input:focus{border-color:var(--red)}
+.filter-bar{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.filter-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:.3rem .8rem;border-radius:3px;cursor:pointer;font-size:.78rem;font-family:'Barlow',sans-serif;transition:all .15s}
+.filter-btn:hover{border-color:var(--border2)}
+.filter-btn.active{border-color:var(--red);color:var(--red);background:rgba(255,70,85,.08)}
+
+/* AGENTS PICKER */
+.agents-pick-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:.75rem}
+.agents-search-row{margin-bottom:.6rem}
+.agents-grid{display:flex;flex-wrap:wrap;gap:.4rem;max-height:160px;overflow-y:auto;margin-bottom:.6rem}
+.agent-chip{display:flex;align-items:center;gap:.3rem;background:var(--bg4);border:1px solid var(--border);border-radius:3px;padding:.25rem .55rem;cursor:pointer;font-size:.78rem;color:var(--muted);font-family:'Barlow',sans-serif;transition:all .15s;white-space:nowrap}
+.agent-chip:hover{border-color:var(--border2);color:var(--text)}
+.agent-chip.main-sel{border-color:#ffd700;color:#ffd700;background:rgba(255,215,0,.08)}
+.agent-chip.sec-sel{border-color:var(--red);color:var(--red);background:rgba(255,70,85,.08)}
+.agents-selected{display:flex;flex-wrap:wrap;gap:.4rem;min-height:24px;border-top:1px solid var(--border);padding-top:.5rem}
+.sel-badge{display:flex;align-items:center;gap:.3rem;padding:.2rem .55rem;border-radius:2px;font-size:.78rem;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:opacity .15s}
+.sel-badge:hover{opacity:.7}
+.sel-badge.main-badge{background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.4);color:#ffd700}
+.sel-badge.sec-badge{background:rgba(255,70,85,.1);border:1px solid rgba(255,70,85,.3);color:var(--red)}
+.agent-role-tag{font-size:.65rem;opacity:.6;margin-left:.1rem}
+
+/* CLIENT CARD */
+.client-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:.9rem 1.25rem;margin-bottom:.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.client-agents{display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.3rem}
+.client-agent-tag{font-size:.72rem;padding:.1rem .45rem;border-radius:2px;font-family:'Rajdhani',sans-serif;font-weight:600}
+.client-agent-main{background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.35);color:#ffd700}
+.client-agent-sec{background:rgba(255,70,85,.08);border:1px solid rgba(255,70,85,.25);color:var(--red-light)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">VALO<span>COACH</span></div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showView('home')">Accueil</button>
+    <button class="nav-btn" onclick="showView('booking')">Réserver</button>
+    <button class="nav-btn" onclick="showView('inscription')">S'inscrire</button>
+    <button class="nav-btn coach-btn" onclick="showView(isLoggedIn?'dashboard':'login')">⚡ Coach</button>
+  </div>
+</nav>
+
+<!-- HOME VIEW -->
+<div id="view-home" class="view active">
+  <div class="hero">
+    <div class="hero-badge">COACHING VALORANT GRATUIT</div>
+    <h1>MONTE JUSQU'À<br><em>L'ASCENDANT</em></h1>
+    <p>Coaching personnalisé pour passer du bronze à l'ascendant. Analyse de ton gameplay, tips et axes d'amélioration concrets.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="showView('booking')">RÉSERVER UNE SESSION</button>
+      <button class="btn-outline" onclick="scrollToInfo()">EN SAVOIR PLUS</button>
+    </div>
+  </div>
+
+  <div id="info-section" style="max-width:800px;margin:0 auto;padding:0 2rem">
+    <div class="free-banner">
+      <span class="badge">100% GRATUIT</span>
+      <p>Les sessions de coaching sont entièrement gratuites pour l'instant. Profite-en !</p>
+    </div>
+  </div>
+
+  <div class="ranks-section" id="ranks-section">
+    <div class="section-title">RANGS ACCEPTÉS</div>
+    <div class="section-sub">Du débutant au joueur confirmé, je t'accompagne dans ta progression</div>
+    <div class="ranks-grid" id="ranks-display"></div>
+  </div>
+
+  <div class="what-section">
+    <div class="section-title">CE QU'ON TRAVAILLE</div>
+    <div class="section-sub">Chaque session est adaptée à ton niveau et tes besoins</div>
+    <div class="what-grid">
+      <div class="what-card">
+        <div class="what-card-icon">🎯</div>
+        <h3>Aim & Gunfights</h3>
+        <p>Améliore ton placement de crosshair, ta gestion du recul et tes duels.</p>
+      </div>
+      <div class="what-card">
+        <div class="what-card-icon">🗺️</div>
+        <h3>Game Sense</h3>
+        <p>Lecture de map, rotation, usage des utilitaires et prise de décision.</p>
+      </div>
+      <div class="what-card">
+        <div class="what-card-icon">🧠</div>
+        <h3>Mental & Mindset</h3>
+        <p>Gestion du tilt, communication équipe et régularité sur le long terme.</p>
+      </div>
+      <div class="what-card">
+        <div class="what-card-icon">📊</div>
+        <h3>Analyse VOD</h3>
+        <p>Review de tes replays pour identifier les erreurs récurrentes et les corriger.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING VIEW -->
+<div id="view-booking" class="view">
+  <div id="booking-form-wrap">
+  <div class="booking-section">
+    <div style="margin-bottom:1.5rem">
+      <div class="section-title">RÉSERVER UNE SESSION</div>
+      <div class="section-sub">Choisis un créneau disponible et remplis tes infos. Durée max : 2h30/jour.</div>
+    </div>
+    <div class="booking-card">
+      <div class="booking-header">
+        <div style="width:8px;height:8px;background:var(--red);border-radius:50%"></div>
+        <h2>PRISE DE RDV</h2>
+      </div>
+      <div class="booking-body">
+        <div class="form-group">
+          <label>PSEUDO VALORANT</label>
+          <input class="form-input" id="f-pseudo" placeholder="Pseudo#TAG" maxlength="40">
+        </div>
+        <div class="form-group">
+          <label>RANG ACTUEL</label>
+          <select class="form-input" id="f-rank">
+            <option value="">— Sélectionner —</option>
+            <option>Bronze 1</option><option>Bronze 2</option><option>Bronze 3</option>
+            <option>Argent 1</option><option>Argent 2</option><option>Argent 3</option>
+            <option>Or 1</option><option>Or 2</option><option>Or 3</option>
+            <option>Platine 1</option><option>Platine 2</option><option>Platine 3</option>
+            <option>Diamant 1</option><option>Diamant 2</option><option>Diamant 3</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>DISCORD (pour te contacter)</label>
+          <input class="form-input" id="f-discord" placeholder="pseudo#1234">
+        </div>
+        <div class="form-group">
+          <label>DURÉE SOUHAITÉE</label>
+          <select class="form-input" id="f-duration">
+            <option value="60">1 heure</option>
+            <option value="90">1h30</option>
+            <option value="120">2 heures</option>
+            <option value="150">2h30</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="grid-column:1/-1">
+          <label>AGENTS JOUÉS <span style="color:var(--muted);font-weight:400;font-size:.75rem">(sélectionne ton main en premier, max 3)</span></label>
+          <div class="agents-pick-wrap" id="agents-pick-wrap">
+            <div class="agents-search-row">
+              <input class="form-input" id="agent-search" placeholder="Rechercher un agent..." oninput="filterAgents()" autocomplete="off">
+            </div>
+            <div class="agents-grid" id="agents-grid"></div>
+            <div class="agents-selected" id="agents-selected">
+              <span style="color:var(--muted);font-size:.8rem">Aucun agent sélectionné</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="grid-column:1/-1">
+          <label>CHOISIR UNE DATE</label>
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:1rem">
+            <div class="cal-nav">
+              <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+              <span class="cal-month" id="cal-month-label"></span>
+              <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+            </div>
+            <div class="calendar-grid" id="cal-grid"></div>
+            <div class="avail-legend">
+              <span><span class="legend-dot" style="background:var(--accent);display:inline-block"></span>Partiellement dispo</span>
+              <span><span class="legend-dot" style="background:var(--red);display:inline-block"></span>Complet</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="slots-section" id="slots-section" style="display:none">
+          <div class="slots-label">HEURE DE DÉBUT</div>
+          <div class="slots-grid" id="slots-grid"></div>
+        </div>
+
+        <div class="form-group" style="grid-column:1/-1">
+          <label>CE QUE TU VEUX TRAVAILLER (optionnel)</label>
+          <textarea class="note-input" id="f-note" placeholder="Ex : j'ai du mal avec mon aim, je tilt souvent..."></textarea>
+        </div>
+      </div>
+      <div class="booking-footer">
+        <button class="btn-book" id="btn-book" onclick="submitBooking()">RÉSERVER MA SESSION</button>
+      </div>
+    </div>
+  </div>
+  </div>
+  <div id="booking-success" style="display:none;padding:1rem 2rem">
+    <div class="success-card">
+      <div class="success-icon">✅</div>
+      <h2>RDV ENREGISTRÉ !</h2>
+      <p>Ta session de coaching a bien été réservée. Le coach te contactera sur Discord pour confirmer.</p>
+      <div class="success-detail" id="success-detail"></div>
+      <button class="btn-primary" style="margin-top:.5rem" onclick="newBooking()">PRENDRE UN AUTRE RDV</button>
+    </div>
+  </div>
+</div>
+
+<!-- INSCRIPTION VIEW -->
+<div id="view-inscription" class="view">
+  <div class="booking-section">
+    <div style="margin-bottom:1.5rem">
+      <div class="section-title">CRÉER UN COMPTE</div>
+      <div class="section-sub">Inscris-toi pour pouvoir réserver une session de coaching.</div>
+    </div>
+
+    <!-- Connexion client -->
+    <div id="client-login-box" style="margin-bottom:1.5rem">
+      <div class="booking-card">
+        <div class="booking-header">
+          <div style="width:8px;height:8px;background:var(--accent);border-radius:50%"></div>
+          <h2>DÉJÀ INSCRIT ?</h2>
+        </div>
+        <div class="booking-body" style="grid-template-columns:1fr 1fr">
+          <div class="form-group">
+            <label>PSEUDO VALORANT</label>
+            <input class="form-input" id="login-client-pseudo" placeholder="Pseudo#TAG" maxlength="40" onkeydown="if(event.key==='Enter')doClientLogin()">
+          </div>
+          <div class="form-group">
+            <label>MOT DE PASSE</label>
+            <input class="form-input" id="login-client-pw" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doClientLogin()">
+          </div>
+        </div>
+        <div class="booking-footer" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+          <button class="btn-book" style="background:var(--accent);color:#000;width:auto;padding:.7rem 2rem" onclick="doClientLogin()">SE CONNECTER</button>
+          <span id="login-client-error" style="display:none;color:var(--red);font-size:.85rem">Pseudo ou mot de passe incorrect.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Session active -->
+    <div id="client-session-box" style="display:none;margin-bottom:1.5rem">
+      <div style="background:rgba(0,212,170,.07);border:1px solid rgba(0,212,170,.2);border-radius:4px;padding:.85rem 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+        <div>
+          <span style="color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;letter-spacing:1px">CONNECTÉ</span>
+          <span id="client-session-name" style="color:var(--text);margin-left:.6rem;font-size:.9rem"></span>
+        </div>
+        <div style="display:flex;gap:.75rem;align-items:center">
+          <button class="btn-primary" onclick="showView('booking')" style="padding:.4rem 1.25rem;font-size:.85rem">RÉSERVER UNE SESSION</button>
+          <button class="logout-btn" onclick="doClientLogout()">Déconnexion</button>
+        </div>
+      </div>
+    </div>
+    <div class="booking-card">
+      <div class="booking-header">
+        <div style="width:8px;height:8px;background:var(--accent);border-radius:50%"></div>
+        <h2>INSCRIPTION</h2>
+      </div>
+      <div class="booking-body">
+        <div class="form-group">
+          <label>PSEUDO VALORANT</label>
+          <input class="form-input" id="reg-pseudo" placeholder="Pseudo#TAG" maxlength="40">
+        </div>
+        <div class="form-group">
+          <label>DISCORD</label>
+          <input class="form-input" id="reg-discord" placeholder="pseudo#1234">
+        </div>
+        <div class="form-group">
+          <label>RANG ACTUEL</label>
+          <select class="form-input" id="reg-rank">
+            <option value="">— Sélectionner —</option>
+            <option>Bronze 1</option><option>Bronze 2</option><option>Bronze 3</option>
+            <option>Argent 1</option><option>Argent 2</option><option>Argent 3</option>
+            <option>Or 1</option><option>Or 2</option><option>Or 3</option>
+            <option>Platine 1</option><option>Platine 2</option><option>Platine 3</option>
+            <option>Diamant 1</option><option>Diamant 2</option><option>Diamant 3</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>MOT DE PASSE</label>
+          <input class="form-input" id="reg-pw" type="password" placeholder="••••••••" maxlength="50">
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>TES AGENTS <span style="color:var(--muted);font-weight:400;font-size:.75rem">(main en premier, max 3)</span></label>
+          <div class="agents-pick-wrap">
+            <div class="agents-search-row">
+              <input class="form-input" id="reg-agent-search" placeholder="Rechercher un agent..." oninput="filterRegAgents()" autocomplete="off">
+            </div>
+            <div class="agents-grid" id="reg-agents-grid"></div>
+            <div class="agents-selected" id="reg-agents-selected">
+              <span style="color:var(--muted);font-size:.8rem">Aucun agent sélectionné</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="booking-footer" id="reg-msg-area">
+        <button class="btn-book" style="background:var(--accent);color:#000" onclick="submitInscription()">CRÉER MON COMPTE</button>
+      </div>
+    </div>
+
+    <!-- Liste clients (si connecté coach) -->
+    <div id="clients-list-section" style="display:none;margin-top:2rem">
+      <div class="section-title" style="margin-bottom:.5rem">BASE DE DONNÉES CLIENTS</div>
+      <div class="section-sub">Tous les joueurs inscrits sur le site.</div>
+      <div id="clients-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN VIEW -->
+<div id="view-login" class="view">
+  <div class="login-wrap">
+    <div class="login-card">
+      <h2>ACCÈS COACH</h2>
+      <p>Zone privée — accès réservé au coach</p>
+      <div class="login-error" id="login-error" style="display:none">Mot de passe incorrect</div>
+      <div class="form-group" style="margin-bottom:.75rem">
+        <label>MOT DE PASSE</label>
+        <input class="form-input" id="login-pw" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-login" onclick="doLogin()">CONNEXION</button>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD VIEW -->
+<div id="view-dashboard" class="view">
+  <div class="dash-wrap">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:.3rem">
+      <div>
+        <div class="dash-title">DASHBOARD COACH</div>
+        <div class="dash-sub">Vue privée — gestion des rendez-vous</div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Déconnexion</button>
+    </div>
+    <div class="dash-stats" id="dash-stats"></div>
+    <div class="tab-bar">
+      <button class="tab active" onclick="switchTab('rdvs',this)">RDV À VENIR</button>
+      <button class="tab" onclick="switchTab('past',this)">HISTORIQUE</button>
+      <button class="tab" onclick="switchTab('clients',this)">CLIENTS</button>
+      <button class="tab" onclick="switchTab('settings',this)">PARAMÈTRES</button>
+    </div>
+    <div id="tab-rdvs"></div>
+    <div id="tab-past" style="display:none"></div>
+    <div id="tab-clients" style="display:none"></div>
+    <div id="tab-settings" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+const COACH_PW = "valorant2024";
+const MAX_MINS_PER_DAY = 150;
+const COACH_START = 10;
+const COACH_END = 22;
+
+// ══════════════════════════════════════════════════════════════
+// ── SÉCURITÉ — CONSTANTES ─────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+const SEC = {
+  MAX_LOGIN_ATTEMPTS   : 5,    // tentatives avant blocage connexion client
+  LOGIN_LOCKOUT_MS     : 5 * 60 * 1000,   // 5 min de blocage
+  COACH_MAX_ATTEMPTS   : 3,
+  COACH_LOCKOUT_MS     : 10 * 60 * 1000,  // 10 min
+  SESSION_TIMEOUT_MS   : 30 * 60 * 1000,  // session coach expire après 30 min d'inactivité
+  MAX_RDV_ACTIVE       : 2,    // max RDV actifs par client
+  MIN_PW_LENGTH        : 6,
+  MAX_PSEUDO_LENGTH    : 40,
+  MAX_NOTE_LENGTH      : 300,
+  VALID_AGENTS         : ['Astra','Breach','Brimstone','Chamber','Clove','Cypher','Deadlock',
+                          'Fade','Gekko','Harbor','Iso','Jett','KAY/O','Killjoy','Neon','Omen',
+                          'Phoenix','Raze','Reyna','Sage','Skye','Sova','Tejo','Viper','Vyse','Yoru'],
+  VALID_RANKS          : ['Bronze 1','Bronze 2','Bronze 3','Argent 1','Argent 2','Argent 3',
+                          'Or 1','Or 2','Or 3','Platine 1','Platine 2','Platine 3',
+                          'Diamant 1','Diamant 2','Diamant 3'],
+  VALID_DURATIONS      : [60,90,120,150],
+  VALID_STATUSES       : ['pending','confirmed','cancelled'],
+};
+
+// ── SANITISATION XSS ──────────────────────────────────────────
+function sanitize(str){
+  if(typeof str!=='string')return '';
+  return str.replace(/[<>"'`&]/g,c=>({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;','`':'&#x60;','&':'&amp;'}[c]));
+}
+
+// ── HASH SIMPLE (intégrité données) ───────────────────────────
+// Produit une empreinte numérique d'un objet pour détecter les modifications manuelles
+function hashObj(obj){
+  const s=JSON.stringify(obj);
+  let h=0;
+  for(let i=0;i<s.length;i++){h=(Math.imul(31,h)+s.charCodeAt(i))|0;}
+  return (h>>>0).toString(36);
+}
+function signEntry(obj){const {_sig,...rest}=obj;return{...rest,_sig:hashObj(rest)};}
+function verifyEntry(obj){if(!obj||!obj._sig)return false;const{_sig,...rest}=obj;return hashObj(rest)===_sig;}
+
+// ── RATE LIMITER générique ────────────────────────────────────
+const _rateBuckets={};
+function rateLimitCheck(key, maxAttempts, windowMs){
+  const now=Date.now();
+  if(!_rateBuckets[key])_rateBuckets[key]={count:0,first:now,locked:false,lockUntil:0};
+  const b=_rateBuckets[key];
+  if(b.locked){
+    if(now<b.lockUntil){const rem=Math.ceil((b.lockUntil-now)/1000);return{ok:false,reason:`Trop de tentatives. Réessaie dans ${rem}s.`};}
+    // Déblocage
+    b.locked=false;b.count=0;b.first=now;
+  }
+  if(now-b.first>windowMs){b.count=0;b.first=now;}
+  b.count++;
+  if(b.count>maxAttempts){b.locked=true;b.lockUntil=now+windowMs;return{ok:false,reason:`Trop de tentatives. Compte bloqué ${windowMs/60000} min.`};}
+  return{ok:true};
+}
+
+// ── STORAGE SÉCURISÉ ──────────────────────────────────────────
+function getBookings(){
+  try{
+    const r=localStorage.getItem('valoBookings');
+    if(!r)return[];
+    const arr=JSON.parse(r);
+    if(!Array.isArray(arr))return[];
+    // Vérifier l'intégrité de chaque entrée
+    return arr.filter(b=>{
+      if(!verifyEntry(b))return false;
+      if(!b.id||typeof b.id!=='string')return false;
+      if(!SEC.VALID_STATUSES.includes(b.status))return false;
+      if(!SEC.VALID_RANKS.includes(b.rank))return false;
+      if(!SEC.VALID_DURATIONS.includes(b.duration))return false;
+      return true;
+    });
+  }catch{return[];}
+}
+function saveBookings(arr){
+  const signed=arr.map(b=>signEntry(b));
+  localStorage.setItem('valoBookings',JSON.stringify(signed));
+}
+
+function getClients(){
+  try{
+    const r=localStorage.getItem('valoClients');
+    if(!r)return[];
+    const arr=JSON.parse(r);
+    if(!Array.isArray(arr))return[];
+    return arr.filter(c=>{
+      if(!verifyEntry(c))return false;
+      if(!c.id||!c.pseudo||!c.pw)return false;
+      if(!SEC.VALID_RANKS.includes(c.rank))return false;
+      if(c.agents&&!Array.isArray(c.agents))return false;
+      if(c.agents&&c.agents.some(a=>!SEC.VALID_AGENTS.includes(a)))return false;
+      return true;
+    });
+  }catch{return[];}
+}
+function saveClients(arr){
+  // Ne jamais sauvegarder le mot de passe en clair — on le garde tel quel ici
+  // (limitation du contexte client-side ; dans un vrai projet : hachage côté serveur)
+  const signed=arr.map(c=>signEntry(c));
+  localStorage.setItem('valoClients',JSON.stringify(signed));
+}
+
+// ── VALIDATION CHAMPS ──────────────────────────────────────────
+function validatePseudo(p){
+  if(!p||p.length<3||p.length>SEC.MAX_PSEUDO_LENGTH)return'Pseudo invalide (3–40 caractères).';
+  if(!/^[^\s<>"'`&]{2,}#[^\s<>"'`&]{1,10}$/.test(p))return'Format attendu : Pseudo#TAG';
+  return null;
+}
+function validateDiscord(d){
+  if(!d||d.length<3||d.length>40)return'Discord invalide.';
+  // Accepte ancien format pseudo#0000 ou nouveau nom d'utilisateur
+  if(!/^[a-zA-Z0-9_.]{2,32}(#\d{4})?$/.test(d))return'Format Discord invalide.';
+  return null;
+}
+function validatePassword(pw){
+  if(!pw||pw.length<SEC.MIN_PW_LENGTH)return`Mot de passe trop court (min ${SEC.MIN_PW_LENGTH} caractères).`;
+  if(pw.length>100)return'Mot de passe trop long.';
+  return null;
+}
+function showFieldError(inputId, msg){
+  const el=document.getElementById(inputId);
+  if(!el)return;
+  el.style.borderColor='var(--red)';
+  let err=el.parentNode.querySelector('.field-err');
+  if(!err){err=document.createElement('span');err.className='field-err';err.style.cssText='color:var(--red);font-size:.75rem;margin-top:.2rem;';el.parentNode.appendChild(err);}
+  err.textContent=msg;
+}
+function clearFieldError(inputId){
+  const el=document.getElementById(inputId);
+  if(!el)return;
+  el.style.borderColor='';
+  const err=el.parentNode.querySelector('.field-err');
+  if(err)err.remove();
+}
+
+// ══════════════════════════════════════════════════════════════
+// ── SESSION COACH ─────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+let isLoggedIn=false;
+let coachSessionTimer=null;
+
+function resetCoachTimer(){
+  clearTimeout(coachSessionTimer);
+  coachSessionTimer=setTimeout(()=>{
+    if(isLoggedIn){
+      isLoggedIn=false;
+      showView('home');
+      alert('Session coach expirée après 30 min d\'inactivité.');
+    }
+  },SEC.SESSION_TIMEOUT_MS);
+}
+
+// ── SESSION CLIENT ────────────────────────────────────────────
+let currentClient=null;
+let calYear,calMonth,selectedDate=null,selectedSlot=null;
+
+// ══════════════════════════════════════════════════════════════
+// ── NAVIGATION ────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+function showView(v){
+  if(v==='booking'&&!currentClient){showInscriptionWithMsg();return;}
+  // Réinitialiser le timer coach à chaque navigation
+  if(isLoggedIn)resetCoachTimer();
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  if(v==='home')document.querySelectorAll('.nav-btn')[0].classList.add('active');
+  if(v==='booking')document.querySelectorAll('.nav-btn')[1].classList.add('active');
+  if(v==='inscription')document.querySelectorAll('.nav-btn')[2].classList.add('active');
+  if(v==='dashboard'||v==='login')document.querySelectorAll('.nav-btn')[3].classList.add('active');
+  if(v==='dashboard')renderDashboard();
+  if(v==='booking'){resetBooking();renderCalendar();}
+  if(v==='inscription'){initAgentsPicker('reg-agents-grid','reg-agents-selected','reg',regSelectedAgents);renderClientsListIfCoach();}
+}
+
+function showInscriptionWithMsg(){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-inscription').classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn')[2].classList.add('active');
+  initAgentsPicker('reg-agents-grid','reg-agents-selected','reg',regSelectedAgents);
+  renderClientsListIfCoach();
+  const existing=document.getElementById('booking-blocked-msg');
+  if(!existing){
+    const msg=document.createElement('div');
+    msg.id='booking-blocked-msg';
+    msg.style.cssText='background:rgba(255,70,85,.1);border:1px solid rgba(255,70,85,.3);border-radius:4px;padding:.75rem 1.25rem;margin-bottom:1.25rem;color:var(--red);font-size:.88rem;display:flex;align-items:center;gap:.6rem;';
+    msg.innerHTML='<span style="font-size:1.1rem">🔒</span><span>Tu dois être connecté pour réserver. <span style="text-decoration:underline;cursor:pointer;font-weight:600" onclick="showLoginForm()">Déjà inscrit ? Connecte-toi.</span></span>';
+    const section=document.querySelector('#view-inscription .booking-section');
+    section.insertBefore(msg,section.firstChild);
+  }
+}
+
+function scrollToInfo(){document.getElementById('info-section').scrollIntoView({behavior:'smooth'});}
+
+// ── RANKS ─────────────────────────────────────────────────────
+const RANKS=[{name:'Bronze 1',color:'#cd7f32'},{name:'Bronze 2',color:'#cd7f32'},{name:'Bronze 3',color:'#cd7f32'},
+{name:'Argent 1',color:'#c0c0c0'},{name:'Argent 2',color:'#c0c0c0'},{name:'Argent 3',color:'#c0c0c0'},
+{name:'Or 1',color:'#ffd700'},{name:'Or 2',color:'#ffd700'},{name:'Or 3',color:'#ffd700'},
+{name:'Platine 1',color:'#00b4d8'},{name:'Platine 2',color:'#00b4d8'},{name:'Platine 3',color:'#00b4d8'},
+{name:'Diamant 1',color:'#b388ff'},{name:'Diamant 2',color:'#b388ff'},{name:'Diamant 3',color:'#b388ff'},
+{name:'Ascendant',color:'#00e676'}];
+function renderRanks(){
+  const g=document.getElementById('ranks-display');g.innerHTML='';
+  RANKS.forEach((r,i)=>{
+    if(i===0){const p=document.createElement('span');p.className='rank-pill from';p.textContent=r.name;p.style.borderColor=r.color+'66';p.style.color=r.color;p.style.background=r.color+'11';g.appendChild(p);}
+    else if(i===RANKS.length-1){const arr=document.createElement('span');arr.className='rank-arrow';arr.textContent='→';g.appendChild(arr);const p=document.createElement('span');p.className='rank-pill to';p.textContent=r.name;p.style.borderColor=r.color+'66';p.style.color=r.color;p.style.background=r.color+'11';g.appendChild(p);}
+    else{if(i===1){const arr=document.createElement('span');arr.className='rank-arrow';arr.textContent='···';g.appendChild(arr);}}
+  });
+}
+
+// ── CALENDRIER ────────────────────────────────────────────────
+const MONTHS_FR=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const DAYS_FR=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+function initCal(){const now=new Date();calYear=now.getFullYear();calMonth=now.getMonth();}
+function changeMonth(d){calMonth+=d;if(calMonth>11){calMonth=0;calYear++;}if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+
+function getDayBookedMins(dateStr){
+  return getBookings().filter(b=>b.date===dateStr&&b.status!=='cancelled').reduce((s,b)=>s+(b.duration||60),0);
+}
+
+function renderCalendar(){
+  document.getElementById('cal-month-label').textContent=MONTHS_FR[calMonth]+' '+calYear;
+  const grid=document.getElementById('cal-grid');grid.innerHTML='';
+  DAYS_FR.forEach(d=>{const h=document.createElement('div');h.className='cal-header';h.textContent=d;grid.appendChild(h);});
+  const first=new Date(calYear,calMonth,1);
+  let startDay=(first.getDay()+6)%7;
+  for(let i=0;i<startDay;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const today=new Date();today.setHours(0,0,0,0);
+  for(let d=1;d<=daysInMonth;d++){
+    const dayEl=document.createElement('div');dayEl.className='cal-day';dayEl.textContent=d;
+    const dateStr=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const thisDate=new Date(calYear,calMonth,d);
+    const bookedMins=getDayBookedMins(dateStr);
+    if(thisDate<today){dayEl.classList.add('past');}
+    else if(bookedMins>=MAX_MINS_PER_DAY){dayEl.classList.add('full');dayEl.title='Journée complète';}
+    else if(bookedMins>0){dayEl.classList.add('partial');}
+    if(dateStr===selectedDate)dayEl.classList.add('selected');
+    if(!dayEl.classList.contains('past')&&!dayEl.classList.contains('full')){dayEl.addEventListener('click',()=>selectDate(dateStr));}
+    grid.appendChild(dayEl);
+  }
+}
+
+function selectDate(dateStr){selectedDate=dateStr;selectedSlot=null;renderCalendar();renderSlots();}
+
+function renderSlots(){
+  const sec=document.getElementById('slots-section');
+  if(!selectedDate){sec.style.display='none';return;}
+  sec.style.display='block';
+  const grid=document.getElementById('slots-grid');grid.innerHTML='';
+  const dur=parseInt(document.getElementById('f-duration').value)||60;
+  const bookedMins=getDayBookedMins(selectedDate);
+  const remaining=MAX_MINS_PER_DAY-bookedMins;
+  const existingSlots=getBookings().filter(b=>b.date===selectedDate&&b.status!=='cancelled');
+  for(let h=COACH_START;h<COACH_END;h++){
+    for(let m=0;m<60;m+=30){
+      const timeStr=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+      const endH=h+Math.floor((m+dur)/60);const endM=(m+dur)%60;
+      if(endH>COACH_END||(endH===COACH_END&&endM>0))continue;
+      const btn=document.createElement('button');btn.className='slot-btn';btn.textContent=timeStr;
+      const slotStart=h*60+m;const slotEnd=slotStart+dur;
+      let overlap=false;
+      existingSlots.forEach(b=>{
+        const bH=parseInt(b.time.split(':')[0]);const bM=parseInt(b.time.split(':')[1]);
+        const bStart=bH*60+bM;const bEnd=bStart+(b.duration||60);
+        if(!(slotEnd<=bStart||slotStart>=bEnd))overlap=true;
+      });
+      if(overlap||dur>remaining){btn.classList.add('unavail');btn.disabled=true;}
+      else{
+        if(timeStr===selectedSlot)btn.classList.add('selected');
+        btn.addEventListener('click',()=>{selectedSlot=timeStr;renderSlots();});
+      }
+      grid.appendChild(btn);
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// ── RÉSERVATION (SÉCURISÉE) ───────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+function submitBooking(){
+  // Double-check session
+  if(!currentClient){alert('Tu dois être connecté pour réserver.');showView('inscription');return;}
+
+  const pseudo=document.getElementById('f-pseudo').value.trim();
+  const rank=document.getElementById('f-rank').value;
+  const discord=document.getElementById('f-discord').value.trim();
+  const durRaw=parseInt(document.getElementById('f-duration').value);
+  const noteRaw=document.getElementById('f-note').value.trim();
+
+  // Validation pseudo
+  const pseudoErr=validatePseudo(pseudo);
+  if(pseudoErr){showFieldError('f-pseudo',pseudoErr);return;}else clearFieldError('f-pseudo');
+
+  // Validation rang (whitelist)
+  if(!SEC.VALID_RANKS.includes(rank)){alert('Rang invalide.');return;}
+
+  // Validation discord
+  const discordErr=validateDiscord(discord);
+  if(discordErr){showFieldError('f-discord',discordErr);return;}else clearFieldError('f-discord');
+
+  // Validation durée (whitelist)
+  if(!SEC.VALID_DURATIONS.includes(durRaw)){alert('Durée invalide.');return;}
+
+  // Agents : vérification whitelist
+  if(bookingSelectedAgents.length===0){alert('Sélectionne au moins ton agent principal.');return;}
+  if(bookingSelectedAgents.length>3){alert('Maximum 3 agents.');return;}
+  if(bookingSelectedAgents.some(a=>!SEC.VALID_AGENTS.includes(a))){alert('Agent invalide détecté.');return;}
+
+  // Note : longueur max + sanitisation
+  const note=sanitize(noteRaw.slice(0,SEC.MAX_NOTE_LENGTH));
+
+  if(!selectedDate||!selectedSlot){alert('Choisis une date et un créneau.');return;}
+
+  // Anti-spam : max RDV actifs par client
+  const bookings=getBookings();
+  const clientActiveRdvs=bookings.filter(b=>b.clientId===currentClient.id&&b.status!=='cancelled');
+  if(clientActiveRdvs.length>=SEC.MAX_RDV_ACTIVE){
+    alert(`Tu as déjà ${SEC.MAX_RDV_ACTIVE} réservations actives. Attends la confirmation ou l'annulation avant d'en faire une nouvelle.`);
+    return;
+  }
+
+  // Vérification créneau encore dispo (re-check côté JS)
+  const dur=durRaw;
+  const bookedMins=getDayBookedMins(selectedDate);
+  if(bookedMins+dur>MAX_MINS_PER_DAY){alert('Ce créneau n\'est plus disponible.');renderCalendar();return;}
+
+  const id='rdv_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);
+  const entry={id,clientId:currentClient.id,pseudo:sanitize(pseudo),rank,discord:sanitize(discord),
+    agents:[...bookingSelectedAgents],date:selectedDate,time:selectedSlot,duration:dur,
+    note,status:'pending',createdAt:new Date().toISOString()};
+  bookings.push(entry);saveBookings(bookings);
+
+  document.getElementById('booking-form-wrap').style.display='none';
+  const d=document.getElementById('success-detail');
+  const dLabel=new Date(selectedDate+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  const endH=Math.floor((parseInt(selectedSlot.split(':')[0])*60+parseInt(selectedSlot.split(':')[1])+dur)/60);
+  const endM=(parseInt(selectedSlot.split(':')[1])+dur)%60;
+  const endStr=`${String(endH).padStart(2,'0')}:${String(endM).padStart(2,'0')}`;
+  const agentsStr=bookingSelectedAgents.map((a,i)=>i===0?`<strong>★ ${sanitize(a)}</strong>`:sanitize(a)).join(', ');
+  d.innerHTML=`<p>👤 <strong>${sanitize(pseudo)}</strong> — ${sanitize(rank)}</p><p>📅 <strong>${dLabel}</strong></p><p>🕐 <strong>${selectedSlot} → ${endStr}</strong></p><p>💬 Discord : <strong>${sanitize(discord)}</strong></p><p>🎮 Agents : ${agentsStr}</p>`;
+  document.getElementById('booking-success').style.display='block';
+}
+
+function newBooking(){
+  document.getElementById('booking-form-wrap').style.display='block';
+  document.getElementById('booking-success').style.display='none';
+  resetBooking();renderCalendar();
+}
+function resetBooking(){
+  selectedDate=null;selectedSlot=null;
+  document.getElementById('slots-section').style.display='none';
+  ['f-pseudo','f-discord','f-note'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';clearFieldError(id);}});
+  const r=document.getElementById('f-rank');if(r)r.value='';
+  const du=document.getElementById('f-duration');if(du)du.value='60';
+  initBookingAgents();
+}
+document.getElementById('f-duration').addEventListener('change',()=>{if(selectedDate)renderSlots();});
+
+// ══════════════════════════════════════════════════════════════
+// ── CONNEXION COACH (SÉCURISÉE) ───────────────────────────────
+// ══════════════════════════════════════════════════════════════
+function doLogin(){
+  const rl=rateLimitCheck('coach_login',SEC.COACH_MAX_ATTEMPTS,SEC.COACH_LOCKOUT_MS);
+  if(!rl.ok){document.getElementById('login-error').style.display='block';document.getElementById('login-error').textContent=rl.reason;return;}
+  const pw=document.getElementById('login-pw').value;
+  if(pw===COACH_PW){
+    isLoggedIn=true;
+    _rateBuckets['coach_login']={count:0,first:Date.now(),locked:false,lockUntil:0};
+    document.getElementById('login-error').style.display='none';
+    document.getElementById('login-pw').value='';
+    resetCoachTimer();
+    showView('dashboard');
+  } else {
+    document.getElementById('login-error').style.display='block';
+    document.getElementById('login-error').textContent='Mot de passe incorrect.';
+  }
+}
+function doLogout(){
+  isLoggedIn=false;clearTimeout(coachSessionTimer);
+  document.getElementById('login-pw').value='';
+  showView('home');
+}
+
+// ══════════════════════════════════════════════════════════════
+// ── CONNEXION CLIENT (SÉCURISÉE) ──────────────────────────────
+// ══════════════════════════════════════════════════════════════
+function doClientLogin(){
+  const pseudo=document.getElementById('login-client-pseudo').value.trim();
+  const pw=document.getElementById('login-client-pw').value;
+  const rlKey='client_login_'+pseudo.toLowerCase();
+  const rl=rateLimitCheck(rlKey,SEC.MAX_LOGIN_ATTEMPTS,SEC.LOGIN_LOCKOUT_MS);
+  if(!rl.ok){
+    document.getElementById('login-client-error').style.display='inline';
+    document.getElementById('login-client-error').textContent=rl.reason;
+    return;
+  }
+  const clients=getClients();
+  const found=clients.find(c=>c.pseudo.toLowerCase()===pseudo.toLowerCase()&&c.pw===pw);
+  if(!found){
+    document.getElementById('login-client-error').style.display='inline';
+    document.getElementById('login-client-error').textContent='Pseudo ou mot de passe incorrect.';
+    return;
+  }
+  document.getElementById('login-client-error').style.display='none';
+  _rateBuckets[rlKey]={count:0,first:Date.now(),locked:false,lockUntil:0};
+  currentClient=found;
+  updateClientSessionUI();
+}
+
+function doClientLogout(){
+  currentClient=null;updateClientSessionUI();
+  const msg=document.getElementById('booking-blocked-msg');if(msg)msg.remove();
+}
+
+function updateClientSessionUI(){
+  const loginBox=document.getElementById('client-login-box');
+  const sessionBox=document.getElementById('client-session-box');
+  if(currentClient){
+    loginBox.style.display='none';sessionBox.style.display='block';
+    document.getElementById('client-session-name').textContent=sanitize(currentClient.pseudo)+' — '+sanitize(currentClient.rank);
+    const msg=document.getElementById('booking-blocked-msg');if(msg)msg.remove();
+  } else {
+    loginBox.style.display='block';sessionBox.style.display='none';
+  }
+}
+
+function showLoginForm(){
+  document.getElementById('client-login-box').style.display='block';
+  document.getElementById('client-login-box').scrollIntoView({behavior:'smooth'});
+  setTimeout(()=>document.getElementById('login-client-pseudo').focus(),300);
+}
+
+// ══════════════════════════════════════════════════════════════
+// ── INSCRIPTION (SÉCURISÉE) ───────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+function submitInscription(){
+  const pseudo=document.getElementById('reg-pseudo').value.trim();
+  const discord=document.getElementById('reg-discord').value.trim();
+  const rank=document.getElementById('reg-rank').value;
+  const pw=document.getElementById('reg-pw').value;
+
+  // Validations strictes
+  const pseudoErr=validatePseudo(pseudo);
+  if(pseudoErr){showFieldError('reg-pseudo',pseudoErr);return;}else clearFieldError('reg-pseudo');
+
+  const discordErr=validateDiscord(discord);
+  if(discordErr){showFieldError('reg-discord',discordErr);return;}else clearFieldError('reg-discord');
+
+  if(!SEC.VALID_RANKS.includes(rank)){alert('Sélectionne un rang valide.');return;}
+
+  const pwErr=validatePassword(pw);
+  if(pwErr){showFieldError('reg-pw',pwErr);return;}else clearFieldError('reg-pw');
+
+  // Agents whitelist
+  if(regSelectedAgents.some(a=>!SEC.VALID_AGENTS.includes(a))){alert('Agent invalide.');return;}
+
+  // Anti-inscription rapide (rate limit par pseudo)
+  const rl=rateLimitCheck('reg_'+pseudo.toLowerCase(),3,10*60*1000);
+  if(!rl.ok){alert(rl.reason);return;}
+
+  const clients=getClients();
+  if(clients.find(c=>c.pseudo.toLowerCase()===pseudo.toLowerCase())){
+    showFieldError('reg-pseudo','Ce pseudo est déjà inscrit.');return;
+  }
+
+  const entry={id:'client_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
+    pseudo:sanitize(pseudo),discord:sanitize(discord),rank,pw,
+    agents:[...regSelectedAgents],createdAt:new Date().toISOString()};
+  clients.push(entry);saveClients(clients);
+  currentClient=entry;updateClientSessionUI();
+
+  const area=document.getElementById('reg-msg-area');
+  area.innerHTML=`<div style="background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.25);border-radius:4px;padding:1rem;text-align:center">
+    <div style="font-size:1.5rem;margin-bottom:.4rem">✅</div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;color:var(--accent);letter-spacing:1px">COMPTE CRÉÉ !</div>
+    <p style="color:var(--muted);font-size:.85rem;margin-top:.4rem">Bienvenue <strong style="color:var(--text)">${sanitize(pseudo)}</strong> ! <span style="color:var(--red);cursor:pointer;font-weight:600" onclick="showView('booking')">Réserver une session →</span></p>
+  </div>`;
+  ['reg-pseudo','reg-discord','reg-pw'].forEach(id=>{document.getElementById(id).value='';clearFieldError(id);});
+  document.getElementById('reg-rank').value='';
+  regSelectedAgents.length=0;
+  initAgentsPicker('reg-agents-grid','reg-agents-selected','reg',regSelectedAgents);
+}
+
+// ══════════════════════════════════════════════════════════════
+// ── DASHBOARD ─────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+let dashFilter='all',dashTab='rdvs';
+function switchTab(t,el){
+  if(!isLoggedIn)return; // Garde supplémentaire
+  dashTab=t;
+  resetCoachTimer();
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  ['rdvs','past','clients','settings'].forEach(id=>{document.getElementById('tab-'+id).style.display='none';});
+  document.getElementById('tab-'+t).style.display='block';
+  if(t==='clients'){renderClientsTab();}else{renderDashboard();}
+}
+
+function renderClientsTab(){
+  if(!isLoggedIn)return;
+  const el=document.getElementById('tab-clients');if(!el)return;
+  const clients=getClients();
+  if(clients.length===0){el.innerHTML='<div class="empty-state">Aucun client inscrit.</div>';return;}
+  clients.sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+  el.innerHTML=`<div style="margin-bottom:1rem;padding:.6rem 1rem;background:var(--bg2);border:1px solid var(--border);border-radius:4px">
+    <span style="font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.85rem;color:var(--muted)">TOTAL : <strong style="color:var(--text)">${clients.length}</strong></span>
+  </div>`
+  +clients.map(c=>{
+    const agentsHtml=c.agents&&c.agents.length>0
+      ?c.agents.map((a,i)=>`<span class="client-agent-tag ${i===0?'client-agent-main':'client-agent-sec'}">${i===0?'★ ':''} ${sanitize(a)}</span>`).join('')
+      :'<span style="color:var(--muted);font-size:.75rem">—</span>';
+    const date=new Date(c.createdAt).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});
+    return `<div class="client-card">
+      <div>
+        <div style="font-weight:600;font-size:.95rem">${sanitize(c.pseudo)} <span style="color:var(--muted);font-weight:400;font-size:.85rem">— ${sanitize(c.rank)}</span></div>
+        <div style="font-size:.8rem;color:var(--muted);margin:.15rem 0">💬 ${sanitize(c.discord)} · Inscrit le ${date}</div>
+        <div class="client-agents">${agentsHtml}</div>
+      </div>
+      <button class="action-btn cancel" onclick="deleteClient('${sanitize(c.id)}');renderClientsTab()">Supprimer</button>
+    </div>`;
+  }).join('');
+}
+
+function renderDashboard(){
+  if(!isLoggedIn)return;
+  resetCoachTimer();
+  const all=getBookings();
+  const now=new Date();now.setHours(0,0,0,0);
+  const upcoming=all.filter(b=>b.status!=='cancelled'&&new Date(b.date+'T12:00:00')>=now);
+  const past=all.filter(b=>new Date(b.date+'T12:00:00')<now||b.status==='cancelled');
+  const statsEl=document.getElementById('dash-stats');
+  statsEl.innerHTML=`
+    <div class="stat-card"><div class="stat-val">${upcoming.length}</div><div class="stat-label">RDV À VENIR</div></div>
+    <div class="stat-card"><div class="stat-val">${all.filter(b=>b.status==='confirmed').length}</div><div class="stat-label">CONFIRMÉS</div></div>
+    <div class="stat-card"><div class="stat-val">${all.filter(b=>b.status==='pending').length}</div><div class="stat-label">EN ATTENTE</div></div>
+    <div class="stat-card"><div class="stat-val">${past.filter(b=>b.status!=='cancelled').length}</div><div class="stat-label">TERMINÉS</div></div>
+    <div class="stat-card" style="cursor:pointer" onclick="document.querySelector('.tab[onclick*=clients]').click()"><div class="stat-val" style="color:var(--accent)">${getClients().length}</div><div class="stat-label">CLIENTS INSCRITS</div></div>`;
+  renderRdvList(dashTab==='rdvs'?upcoming:past, dashTab==='rdvs'?'tab-rdvs':'tab-past');
+  renderSettings();
+}
+
+function renderRdvList(list,containerId){
+  const el=document.getElementById(containerId);if(!el)return;
+  if(list.length===0){el.innerHTML='<div class="empty-state">Aucun rendez-vous ici.</div>';return;}
+  list.sort((a,b)=>a.date.localeCompare(b.date)||(a.time.localeCompare(b.time)));
+  const html=list.map(b=>{
+    const dLabel=new Date(b.date+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
+    const durH=Math.floor(b.duration/60);const durM=b.duration%60;
+    const durStr=durH>0?(durM>0?`${durH}h${durM}`:`${durH}h`):`${durM}min`;
+    const endH=Math.floor((parseInt(b.time.split(':')[0])*60+parseInt(b.time.split(':')[1])+b.duration)/60);
+    const endM=(parseInt(b.time.split(':')[1])+b.duration)%60;
+    const endStr=`${String(endH).padStart(2,'0')}:${String(endM).padStart(2,'0')}`;
+    const badge=b.status==='confirmed'?'<span class="rdv-badge badge-confirmed">CONFIRMÉ</span>':b.status==='cancelled'?'<span class="rdv-badge badge-cancelled">ANNULÉ</span>':'<span class="rdv-badge badge-pending">EN ATTENTE</span>';
+    const actions=b.status!=='cancelled'?`
+      ${b.status==='pending'?`<button class="action-btn confirm" onclick="setStatus('${sanitize(b.id)}','confirmed')">✓ Confirmer</button>`:''}
+      <button class="action-btn cancel" onclick="setStatus('${sanitize(b.id)}','cancelled')">✕ Annuler</button>`:'';
+    const agentsHtml=b.agents&&b.agents.length>0?'🎮 '+b.agents.map((a,i)=>i===0?`<strong>${sanitize(a)}★</strong>`:sanitize(a)).join(', '):'';
+    return `<div class="rdv-card ${sanitize(b.status)}">
+      <div class="rdv-info">
+        <h3>${sanitize(b.pseudo)} — <span style="color:var(--muted);font-weight:400">${sanitize(b.rank)}</span></h3>
+        <p>📅 ${dLabel} · 🕐 ${b.time}–${endStr} (${durStr}) · 💬 ${sanitize(b.discord)}</p>
+        ${agentsHtml?`<p style="margin-top:.3rem;font-size:.8rem">${agentsHtml}</p>`:''}
+        ${b.note?`<p style="margin-top:.3rem;font-style:italic;color:var(--muted)">"${sanitize(b.note)}"</p>`:''}
+      </div>
+      <div class="rdv-actions">${badge}${actions}</div>
+    </div>`;
+  }).join('');
+  el.innerHTML=html;
+}
+
+function setStatus(id,status){
+  if(!isLoggedIn)return; // Seul le coach peut changer un statut
+  if(!SEC.VALID_STATUSES.includes(status))return;
+  if(!/^rdv_\d+/.test(id))return; // Vérification format ID
+  const b=getBookings();
+  const idx=b.findIndex(x=>x.id===id);
+  if(idx>-1){b[idx].status=status;saveBookings(b);}
+  renderDashboard();
+}
+
+function renderSettings(){
+  if(!isLoggedIn)return;
+  const el=document.getElementById('tab-settings');if(!el)return;
+  const today=new Date().toISOString().slice(0,10);
+  const bookedToday=getDayBookedMins(today);
+  const remaining=MAX_MINS_PER_DAY-bookedToday;
+  el.innerHTML=`
+    <div class="coach-avail"><h3>DISPONIBILITÉ AUJOURD'HUI</h3>
+      <div style="display:flex;gap:2rem;flex-wrap:wrap">
+        <div><div class="stat-val" style="font-size:1.5rem">${Math.floor(bookedToday/60)}h${bookedToday%60?bookedToday%60+'min':''}</div><div class="stat-label" style="margin-top:.2rem">Réservé ce jour</div></div>
+        <div><div class="stat-val" style="font-size:1.5rem;color:var(--accent)">${Math.floor(remaining/60)}h${remaining%60?remaining%60+'min':''}</div><div class="stat-label" style="margin-top:.2rem">Temps restant</div></div>
+        <div><div class="stat-val" style="font-size:1.5rem">2h30</div><div class="stat-label" style="margin-top:.2rem">Maximum par jour</div></div>
+      </div>
+    </div>
+    <div class="coach-avail"><h3>INFOS SITE</h3>
+      <p style="color:var(--muted);font-size:.85rem;line-height:1.7">
+        · Horaires : ${COACH_START}h00 → ${COACH_END}h00<br>
+        · Limite journalière : ${MAX_MINS_PER_DAY} min (2h30)<br>
+        · Max RDV actifs par client : ${SEC.MAX_RDV_ACTIVE}<br>
+        · Session coach expire après 30 min d'inactivité<br>
+        · Blocage après ${SEC.COACH_MAX_ATTEMPTS} tentatives coach / ${SEC.MAX_LOGIN_ATTEMPTS} tentatives client
+      </p>
+    </div>
+    <div class="coach-avail"><h3>SUPPRIMER UN RDV</h3>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:.75rem">Pour supprimer définitivement les RDV annulés.</p>
+      ${getBookings().filter(b=>b.status==='cancelled').length>0?`<button class="action-btn" onclick="clearCancelled()" style="border-color:var(--red);color:var(--red)">Supprimer tous les RDV annulés</button>`:'<span style="color:var(--muted);font-size:.85rem">Aucun RDV annulé.</span>'}
+    </div>`;
+}
+
+function clearCancelled(){
+  if(!isLoggedIn)return;
+  const b=getBookings().filter(x=>x.status!=='cancelled');saveBookings(b);renderDashboard();
+}
+
+// ── CLIENTS DB ────────────────────────────────────────────────
+function deleteClient(id){
+  if(!isLoggedIn)return;
+  if(!confirm('Supprimer ce client ?'))return;
+  const clients=getClients().filter(c=>c.id!==id);
+  saveClients(clients);renderClientsTab();
+}
+
+function renderClientsListIfCoach(){
+  const section=document.getElementById('clients-list-section');
+  if(!isLoggedIn){section.style.display='none';return;}
+  section.style.display='block';
+  renderClientsTab();
+}
+
+// ── AGENTS ────────────────────────────────────────────────────
+const AGENTS=SEC.VALID_AGENTS.map(name=>{
+  const roles={'Astra':'Contrôleur','Breach':'Initiateur','Brimstone':'Contrôleur','Chamber':'Sentinelle',
+    'Clove':'Contrôleur','Cypher':'Sentinelle','Deadlock':'Sentinelle','Fade':'Initiateur',
+    'Gekko':'Initiateur','Harbor':'Contrôleur','Iso':'Duelliste','Jett':'Duelliste',
+    'KAY/O':'Initiateur','Killjoy':'Sentinelle','Neon':'Duelliste','Omen':'Contrôleur',
+    'Phoenix':'Duelliste','Raze':'Duelliste','Reyna':'Duelliste','Sage':'Sentinelle',
+    'Skye':'Initiateur','Sova':'Initiateur','Tejo':'Initiateur','Viper':'Contrôleur',
+    'Vyse':'Sentinelle','Yoru':'Duelliste'};
+  return{name,role:roles[name]||''};
+}).sort((a,b)=>a.name.localeCompare(b.name));
+
+const ROLE_ICONS={'Duelliste':'⚔️','Initiateur':'🔍','Contrôleur':'🌫️','Sentinelle':'🛡️'};
+
+let bookingSelectedAgents=[];
+let regSelectedAgents=[];
+
+function initAgentsPicker(gridId,selectedId,prefix,stateArr){
+  stateArr.length=0;
+  const search=prefix==='reg'?document.getElementById('reg-agent-search'):document.getElementById('agent-search');
+  if(search)search.value='';
+  renderAgentsGrid(gridId,selectedId,stateArr,'');
+}
+
+function filterAgents(){const q=document.getElementById('agent-search').value.toLowerCase();renderAgentsGrid('agents-grid','agents-selected',bookingSelectedAgents,q);}
+function filterRegAgents(){const q=document.getElementById('reg-agent-search').value.toLowerCase();renderAgentsGrid('reg-agents-grid','reg-agents-selected',regSelectedAgents,q);}
+
+function renderAgentsGrid(gridId,selectedId,stateArr,query){
+  const grid=document.getElementById(gridId);
+  const filtered=AGENTS.filter(a=>a.name.toLowerCase().includes(query));
+  grid.innerHTML='';
+  filtered.forEach(agent=>{
+    const idx=stateArr.indexOf(agent.name);
+    const chip=document.createElement('div');
+    chip.className='agent-chip'+(idx===0?' main-sel':idx>0?' sec-sel':'');
+    chip.textContent=agent.name;
+    chip.onclick=()=>toggleAgent(agent.name,gridId,selectedId,stateArr,query);
+    grid.appendChild(chip);
+  });
+  renderSelectedAgents(selectedId,stateArr,gridId,query);
+}
+
+function toggleAgent(name,gridId,selectedId,stateArr,query=''){
+  // Whitelist check
+  if(!SEC.VALID_AGENTS.includes(name))return;
+  const idx=stateArr.indexOf(name);
+  if(idx>-1){stateArr.splice(idx,1);}
+  else{if(stateArr.length>=3){alert('Maximum 3 agents.');return;}stateArr.push(name);}
+  renderAgentsGrid(gridId,selectedId,stateArr,query);
+}
+
+function renderSelectedAgents(selectedId,stateArr,gridId,query=''){
+  const el=document.getElementById(selectedId);
+  if(stateArr.length===0){el.innerHTML='<span style="color:var(--muted);font-size:.8rem">Aucun agent sélectionné</span>';return;}
+  el.innerHTML=stateArr.map((name,i)=>{
+    const cls=i===0?'sel-badge main-badge':'sel-badge sec-badge';
+    const label=i===0?'MAIN':'SEC';
+    return `<span class="${cls}" title="Cliquer pour retirer" onclick="toggleAgent('${sanitize(name)}','${gridId}','${selectedId}',${gridId==='agents-grid'?'bookingSelectedAgents':'regSelectedAgents'},'${query}')">${sanitize(name)} <small>${label}</small> ✕</span>`;
+  }).join('');
+}
+
+function initBookingAgents(){
+  bookingSelectedAgents=[];
+  document.getElementById('agent-search').value='';
+  renderAgentsGrid('agents-grid','agents-selected',bookingSelectedAgents,'');
+}
+
+// Init
+initCal();renderRanks();initBookingAgents();updateClientSessionUI();
+</script>
+</body>
+</html>
