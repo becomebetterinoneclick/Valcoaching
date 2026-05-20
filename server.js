@@ -2,20 +2,32 @@ const express = require('express');
 const session = require('express-session');
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_FILE = path.join(__dirname, 'data.json');
 const COACH_PASSWORD = 'valorant2024';
 
-// Init data file
+const AVATARS_DIR = path.join(__dirname, 'public', 'avatars');
+if (!fs.existsSync(AVATARS_DIR)) fs.mkdirSync(AVATARS_DIR, { recursive: true });
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, AVATARS_DIR),
+    filename: (req, file, cb) => cb(null, 'avatar_' + req.params.id + path.extname(file.originalname))
+  }),
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => cb(null, ['image/jpeg','image/png','image/webp'].includes(file.mimetype))
+});
+
 if (!fs.existsSync(DATA_FILE)) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify({ bookings: [], clients: [] }));
+  fs.writeFileSync(DATA_FILE, JSON.stringify({ bookings: [], clients: [], reviews: [] }));
 }
 
 function readData() {
   try { return JSON.parse(fs.readFileSync(DATA_FILE)); }
-  catch { return { bookings: [], clients: [] }; }
+  catch { return { bookings: [], clients: [], reviews: [] }; }
 }
 function writeData(data) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
@@ -28,8 +40,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false
 }));
-
 app.use(express.static('public'));
+app.use('/avatars', express.static(AVATARS_DIR));
 
 // ── COACH AUTH ──
 app.post('/api/coach/login', (req, res) => {
@@ -112,6 +124,16 @@ app.delete('/api/clients/:id', requireCoach, (req, res) => {
   res.json({ success: true });
 });
 
+// ── AVATAR ──
+app.post('/api/clients/:id/avatar', upload.single('avatar'), (req, res) => {
+  if (!req.file) return res.json({ success: false, error: 'Fichier invalide' });
+  const data = readData();
+  const client = data.clients.find(c => c.id === req.params.id);
+  if (!client) return res.json({ success: false });
+  client.avatar = '/avatars/' + req.file.filename;
+  writeData(data);
+  res.json({ success: true, avatar: client.avatar });
+});
 
 // ── REVIEWS ──
 app.get('/api/reviews', (req, res) => {
@@ -123,19 +145,15 @@ app.post('/api/reviews', (req, res) => {
   if (!data.reviews) data.reviews = [];
   const { clientId, pseudo, rank, rating, text } = req.body;
 
-  // Vérif client existe
   const client = data.clients.find(c => c.id === clientId);
   if (!client) return res.json({ success: false, error: 'Client introuvable.' });
 
-  // Vérif session confirmée
   const hasSession = data.bookings.some(b => b.clientId === clientId && b.status === 'confirmed');
   if (!hasSession) return res.json({ success: false, error: 'Aucune session confirmée.' });
 
-  // Vérif pas déjà posté
   const alreadyPosted = data.reviews.some(r => r.clientId === clientId);
   if (alreadyPosted) return res.json({ success: false, error: 'Avis déjà publié.' });
 
-  // Validation
   if (!rating || rating < 1 || rating > 5) return res.json({ success: false, error: 'Note invalide.' });
   if (!text || text.length < 10 || text.length > 300) return res.json({ success: false, error: 'Texte invalide.' });
 
