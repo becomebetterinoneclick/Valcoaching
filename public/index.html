@@ -208,6 +208,9 @@ select.form-input option{background:var(--bg3)}
 .star-btn{background:none;border:none;font-size:1.8rem;cursor:pointer;color:var(--border2);transition:color .15s;line-height:1}
 .star-btn.active{color:#ffd700}
 .star-btn:hover{color:#ffd700}
+
+/* GESTION AVIS COACH */
+.avis-admin-list{display:flex;flex-direction:column;gap:.75rem}.avis-admin-card{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:1rem}.delete-avis-btn{background:none;border:1px solid rgba(255,70,85,.35);color:var(--red);padding:.4rem .8rem;border-radius:3px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -1130,6 +1133,7 @@ async function renderDashboard(){
     <div class="stat-card" style="cursor:pointer" onclick="document.querySelector('.tab[onclick*=clients]').click()"><div class="stat-val" style="color:var(--accent)">${_clientsCache.length}</div><div class="stat-label">CLIENTS INSCRITS</div></div>`;
   renderRdvList(dashTab==='rdvs'?upcoming:past, dashTab==='rdvs'?'tab-rdvs':'tab-past');
   renderSettings();
+  renderAvisAdmin();
 }
 
 function renderRdvList(list,containerId){
@@ -1187,7 +1191,13 @@ function renderSettings(){
         <div><div class="stat-val" style="font-size:1.5rem">2h30</div><div class="stat-label" style="margin-top:.2rem">Maximum par jour</div></div>
       </div>
     </div>
-    <div class="coach-avail"><h3>INFOS SITE</h3>
+    <div class="coach-avail">
+      <h3>GÉRER LES AVIS</h3>
+      <div id="avis-admin-list" class="avis-admin-list">
+        <div style="color:var(--muted);font-size:.85rem">Chargement des avis...</div>
+      </div>
+    </div>
+<div class="coach-avail"><h3>INFOS SITE</h3>
       <p style="color:var(--muted);font-size:.85rem;line-height:1.7">
         · Horaires : ${COACH_START}h00 → ${COACH_END}h00<br>
         · Limite journalière : ${MAX_MINS_PER_DAY} min (2h30)<br>
@@ -1483,6 +1493,9 @@ async function init(){
   fetchAndRenderAvis();
 }
 init();
+
+async function renderAvisAdmin(){const c=document.getElementById('avis-admin-list');if(!c)return;try{const r=await fetch('/api/reviews');const avis=await r.json();c.innerHTML=avis.length===0?'<div style="color:var(--muted);font-size:.85rem">Aucun avis.</div>':avis.map(a=>`<div class="avis-admin-card"><div style="display:flex;justify-content:space-between;gap:1rem"><div><div class="avis-stars">${'★'.repeat(a.rating||5)}</div><div class="avis-text">"${sanitize(a.text||'')}"</div><div style="font-size:.75rem;color:var(--muted);margin-top:.3rem">${sanitize(a.pseudo)} — ${sanitize(a.rank)}</div></div><button class="delete-avis-btn" onclick="deleteAvis('${a.id}')">Supprimer</button></div></div>`).join('')}catch(e){console.error('Erreur chargement avis admin',e)}}
+async function deleteAvis(id){if(!confirm('Supprimer cet avis ?'))return;try{const r=await fetch('/api/reviews/'+id,{method:'DELETE'});const d=await r.json();if(d.success){renderAvisAdmin();fetchAndRenderAvis();}else{alert('Erreur lors de la suppression.');}}catch(e){alert('Erreur serveur.');}}
 </script>
 </body>
 </html>
