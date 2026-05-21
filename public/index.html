@@ -198,8 +198,11 @@ select.form-input option{background:var(--bg3)}
 .avis-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:1.25rem}
 .avis-stars{color:#ffd700;font-size:1rem;margin-bottom:.5rem;letter-spacing:2px}
 .avis-text{color:var(--text);font-size:.9rem;line-height:1.6;margin-bottom:.75rem;font-style:italic}
-.avis-author{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.85rem;color:var(--muted)}
-.avis-rank{font-size:.78rem;color:var(--muted);margin-top:.15rem}
+.avis-author{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.85rem;color:var(--text)}
+.avis-rank{font-size:.78rem;color:var(--muted);margin-top:.1rem}
+.avis-footer{display:flex;align-items:center;gap:.65rem;margin-top:.85rem;padding-top:.75rem;border-top:1px solid var(--border)}
+.avis-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--border2);flex-shrink:0}
+.avis-avatar-placeholder{width:36px;height:36px;border-radius:50%;background:var(--bg4);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;color:var(--muted);flex-shrink:0}
 .avis-form-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:1.5rem;margin-top:1rem}
 .star-picker{display:flex;gap:.3rem;margin:.5rem 0}
 .star-btn{background:none;border:none;font-size:1.8rem;cursor:pointer;color:var(--border2);transition:color .15s;line-height:1}
@@ -1375,11 +1378,20 @@ function renderAvisGrid(){
   }
   el.innerHTML=_avisCache.map(a=>{
     const stars='★'.repeat(a.rating)+'☆'.repeat(5-a.rating);
+    const initials=sanitize(a.pseudo).slice(0,2).toUpperCase();
+    const avatarHtml=a.avatar
+      ? `<img class="avis-avatar" src="${sanitize(a.avatar)}" alt="${sanitize(a.pseudo)}">`
+      : `<div class="avis-avatar-placeholder">${initials}</div>`;
     return `<div class="avis-card">
       <div class="avis-stars">${stars}</div>
       <div class="avis-text">"${sanitize(a.text)}"</div>
-      <div class="avis-author">${sanitize(a.pseudo)}</div>
-      <div class="avis-rank">${sanitize(a.rank)}</div>
+      <div class="avis-footer">
+        ${avatarHtml}
+        <div>
+          <div class="avis-author">${sanitize(a.pseudo)}</div>
+          <div class="avis-rank">${sanitize(a.rank)}</div>
+        </div>
+      </div>
     </div>`;
   }).join('');
 }
@@ -1436,6 +1448,7 @@ async function submitAvis(){
     clientId:currentClient.id,
     pseudo:currentClient.pseudo,
     rank:currentClient.rank,
+    avatar:currentClient.avatar||null,
     rating:selectedStars,
     text:sanitize(text.slice(0,300)),
     createdAt:new Date().toISOString()

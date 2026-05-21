@@ -200,7 +200,7 @@ app.post('/api/reviews', (req, res) => {
   if (!rating || rating < 1 || rating > 5) return res.json({ success: false, error: 'Note invalide.' });
   if (!text || text.length < 10 || text.length > 300) return res.json({ success: false, error: 'Texte invalide.' });
 
-  const review = { id: Date.now().toString(), clientId, pseudo, rank, rating: parseInt(rating), text, createdAt: new Date().toISOString() };
+  const review = { id: Date.now().toString(), clientId, pseudo, rank, rating: parseInt(rating), text, avatar: client.avatar || null, createdAt: new Date().toISOString() };
   data.reviews.push(review);
   writeData(data);
   res.json({ success: true, review });
